@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model usuarios {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String   @db.VarChar(100)
+  lastname   String?  @db.VarChar(100) 
+  email      String   @unique @db.VarChar(200)
+  password   String   @db.VarChar(200)
+  level      String   @db.VarChar(50)
+  default_picture String @default("profile") @db.VarChar(50)
+  negocioid  String?  @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz
+
+  // Define relationships
+  negocio    negocios? @relation(fields: [negocioid], references: [id])
+}
+
+model negocios {
+  id         String     @id @default(uuid()) @db.Uuid
+  name       String     @db.VarChar(200)
+  location   String?    @db.VarChar(200)
+  created_at  DateTime   @default(now()) @db.Timestamptz
+
+  // Define inverse relation
+  usuarios   usuarios[]
+}
+
+model usuarios_prueba {
+  id          Int     @id @default(autoincrement())
+  name        String
+  email       String @unique
+  password    String
+}

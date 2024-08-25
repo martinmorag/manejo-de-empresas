@@ -6,8 +6,9 @@ import bcrypt from 'bcrypt';
 import type { NextAuthOptions } from 'next-auth';
 import type { User as NextAuthUser } from 'next-auth';
 import { JWT } from 'next-auth/jwt';
-import { NextApiResponse, NextApiRequest } from 'next';
-import { z } from 'zod'
+import { z } from 'zod';
+import { NextRequest, NextResponse } from 'next/server';
+
 
 
 interface CustomUser extends NextAuthUser {
@@ -92,11 +93,12 @@ const authOptions: NextAuthOptions = {
   },
 };
 
-export async function GET(req: NextApiRequest, res: NextApiResponse) {
-  return NextAuth(req, res, authOptions);
+export async function GET(req: NextRequest) {
+  const res = NextResponse.next(); // Create a NextResponse instance
+  return NextAuth(req, res as any, authOptions);
 }
 
-// Handler function for POST requests
-export async function POST(req: NextApiRequest, res: NextApiResponse) {
-  return NextAuth(req, res, authOptions);
+export async function POST(req: NextRequest) {
+  const res = NextResponse.next(); // Create a NextResponse instance
+  return NextAuth(req, res as any, authOptions);
 }

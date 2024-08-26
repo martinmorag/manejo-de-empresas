@@ -1,4 +1,5 @@
 import NextAuth from 'next-auth';
+import handleAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { prisma } from '../../../lib/prisma'; // Adjust the path if needed
@@ -93,12 +94,6 @@ const authOptions: NextAuthOptions = {
   },
 };
 
-export async function GET(req: NextRequest) {
-  const res = NextResponse.next(); // Create a NextResponse instance
-  return NextAuth(req, res as any, authOptions);
-}
 
-export async function POST(req: NextRequest) {
-  const res = NextResponse.next(); // Create a NextResponse instance
-  return NextAuth(req, res as any, authOptions);
-}
+export const GET = handleAuth(authOptions);
+export const POST = handleAuth(authOptions);

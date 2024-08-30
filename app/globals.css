@@ -32,3 +32,10 @@ body {
     text-wrap: balance;
   }
 }
+
+
+/* nuevo producto button hover */
+
+.link:hover .cube-icon {
+  color: white;
+}

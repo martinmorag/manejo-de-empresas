@@ -7,8 +7,7 @@ import { useSession } from "next-auth/react";
 
 interface LayoutProps {
     children: ReactNode;
-}
-
+};
 
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {

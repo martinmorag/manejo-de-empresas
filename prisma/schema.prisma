@@ -19,7 +19,7 @@ model usuarios {
   created_at DateTime @default(now()) @db.Timestamptz
 
   // Define relationships
-  negocio    negocios? @relation(fields: [negocioid], references: [id])
+  negocio         negocios? @relation(fields: [negocioid], references: [id], onUpdate: Cascade, onDelete: NoAction)
 }
 
 model negocios {
@@ -27,10 +27,59 @@ model negocios {
   name       String     @db.VarChar(200)
   location   String?    @db.VarChar(200)
   created_at  DateTime   @default(now()) @db.Timestamptz
+  iva_percentage Decimal? @db.Decimal(5, 2)
 
   // Define inverse relation
   usuarios   usuarios[]
+  productos  productos[]
+  ventas     ventas[]
 }
+
+model productos {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String    @db.VarChar(200)
+  description String?   @db.Text
+  barcode     String?   @unique @db.VarChar(100)
+  negocioid   String?   @db.Uuid
+  price       Decimal   @db.Decimal(10, 2)
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+
+  // Define the relationship with the negocios model
+  negocios    negocios? @relation(fields: [negocioid], references: [id], onUpdate: Cascade, onDelete: NoAction)
+  detalles_ventas detalles_ventas[]
+}
+
+model ventas {
+  id             String      @id @default(uuid())
+  negocioid      String
+  total          Decimal     @db.Decimal(10, 2)
+  payment_method String?     @db.VarChar(100)
+  created_at     DateTime    @default(now()) @db.Timestamp(0)
+
+  // Relations
+  negocio        negocios     @relation(fields: [negocioid], references: [id], onUpdate: Cascade, onDelete: NoAction)
+  detalles_ventas detalles_ventas[]
+
+  @@map("ventas")
+}
+
+model detalles_ventas {
+  id         String     @id @default(uuid())
+  ventaid    String
+  productoid String
+  quantity   Int
+  price      Decimal    @db.Decimal(10, 2)
+  iva_percentage Decimal? @db.Decimal(5, 2)
+  sale_date  DateTime   @default(now()) @db.Timestamptz
+  discount   Decimal?   @db.Decimal(5, 2)
+
+  // Relations
+  venta      ventas      @relation(fields: [ventaid], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  producto   productos   @relation(fields: [productoid], references: [id], onUpdate: Cascade, onDelete: NoAction)
+
+  @@map("detalles_ventas")
+}
+
 
 model usuarios_prueba {
   id          Int     @id @default(autoincrement())

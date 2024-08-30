@@ -1,18 +1,11 @@
-"use client";
+import { Metadata } from "next";
 
-import { useSession } from 'next-auth/react';
+export const metadata : Metadata = {
+  title: "Crece",
+  description: "Bienvenido a Crece, acá va a poder organizar y mantener registros de su negocio actualizado y de manera eficiente."
+}
 
 const Page = () => {
-  const { data: session, status } = useSession();
-
-  if (status === 'loading') {
-    return <p>Loading...</p>;
-  }
-
-  if (!session) {
-    return <p>You are not signed in.</p>;
-  }
-
   return (
     <div>
     </div>

@@ -1,6 +1,12 @@
 import React from "react"
 import Image from "next/image";
 import SignIn from "@/app/ui/SignIn";
+import { Metadata } from "next";
+
+export const metadata : Metadata = {
+    title: "Ingreso | Crece",
+    description: "Bienvenido a Crece, acá va a poder organizar y mantener registros de su negocio actualizado y de manera eficiente.",
+};
 
 const Page : React.FC = () => {
     return (

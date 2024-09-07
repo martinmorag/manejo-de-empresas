@@ -1,5 +1,5 @@
 import React from "react";
-import CreateProduct from "@/app/ui/CreateProduct";
+import CreateProduct from "@/app/ui/productos/CreateProduct";
 
 const Page : React.FC = () => {
     return (

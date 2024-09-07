@@ -5,18 +5,6 @@ import SignOutButton from "./SignOut";
 import { ProfileData } from "@/app/lib/definitions";
 import { DropDownProps } from "@/app/lib/definitions";
 
-const profiles = [
-    { id: "first", name: "profile" },
-    { id: "second", name: "profile2" },
-    { id: "third", name: "profile3" },
-    { id: "fourth", name: "profile4" },
-    { id: "fifth", name: "profile5" },
-    { id: "sixth", name: "profile6" },
-    { id: "seventh", name: "profile7" },
-    { id: "eighth", name: "profile8" },
-];
-
-
 const DropDown: React.FC<DropDownProps> = ({  session }) => {
   const [show, setShow] = useState(false);
   const [data, setData] = useState<ProfileData | null>(null);
@@ -26,12 +14,11 @@ const DropDown: React.FC<DropDownProps> = ({  session }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`/api/profile/${session.user.id}`);
+        const res = await fetch(`/api/perfil/${session.user.id}`);
         if (!res.ok) {
             throw new Error('Network response was not ok');
         }
         const data = await res.json();
-        console.log('API response:', data);
         setData(data);
       } catch (error: any) {
           console.log(error.message);
@@ -40,8 +27,6 @@ const DropDown: React.FC<DropDownProps> = ({  session }) => {
   
       fetchData();
   }, [session?.user?.id]);
-
-  console.log(session.user.id)
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -66,7 +51,7 @@ const DropDown: React.FC<DropDownProps> = ({  session }) => {
   };
 
   return (
-    <div className="relative w-[10vw] h-full flex flex-col items-center justify-center">
+    <div className="relative w-[12vw] h-full flex flex-col items-center justify-center">
       <div 
         ref={buttonRef}
         onClick={handleDropdownClick}
@@ -83,7 +68,7 @@ const DropDown: React.FC<DropDownProps> = ({  session }) => {
       {show && (
         <div ref={dropdownRef} 
         className="absolute top-full mt-[0.5rem] right-[0.2rem] w-full bg-white shadow-lg rounded-md z-10">
-          <Link href="/panel/profile"><div className="px-4 py-2 hover:bg-gray-100 w-[100%] rounded-t-md text-center">
+          <Link href="/panel/perfil"><div className="px-4 py-2 hover:bg-gray-100 w-[100%] rounded-t-md text-center">
             Mi Perfil
           </div></Link>
           <SignOutButton /> 

@@ -25,6 +25,14 @@ export interface ProfileData {
   default_picture : string;
 }
 
+export interface Usuario {
+  name: string;
+  lastname: string;
+  email: string;
+  password: string;
+  default_picture: string;
+}
+
 export interface DropDownProps {
   session: Session;
 }
@@ -35,6 +43,34 @@ export interface Producto {
   description: string;
   barcode: string;
   price: number | string;
+}
+
+export interface Cliente {
+  id: string;
+  negocioid: string;
+  name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Deuda {
+  id: string;
+  cliente_id: string;
+  venta_id: string;
+  amount: number;
+  due_date: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  client: {
+    name: string;  // Adding client name
+  };
+  venta: {
+    created_at: string;  // Adding venta date
+  };
 }
 
 export interface EditProductProps {
@@ -48,8 +84,13 @@ export interface ConfirmationModalProps {
   isVisible: boolean;
 }
 
+export interface ClientSearchProps {
+  onSelect: (client: Cliente) => void;
+}
+
 
 export interface DetalleVenta {
+  id: string;
   ventaid: string;
   productoid: string;
   quantity: number;
@@ -59,9 +100,57 @@ export interface DetalleVenta {
   iva_percentage: number;
 }
 
+export interface UpdateVentaFormData {
+  id: string;
+  payment: number;
+  payment_method: 'Efectivo' | 'Tarjeta de Crédito' | 'Tarjeta de Débito';
+  clienteid: string;
+  is_on_credit: boolean;
+  deuda_amount: number;
+  total: number;
+  due_date?: string | null
+  detalles_ventas: DetalleVenta[];
+}
+
 
 export interface CreateVentaFormData {
-  total: number;
+  payment: number;
   payment_method: 'Efectivo' | 'Tarjeta de Crédito' | 'Tarjeta de Débito';
+  clienteid: string;
+  is_on_credit: boolean;
+  deuda_amount: number;
+  total: number;
+  due_date?: string | null
   detalles_ventas: DetalleVenta[];
+}
+
+export interface Venta {
+    id: string;
+    negocioid: string;
+    payment: number | string;
+    balance_due?: number;
+    status?: string;
+    payment_method?: string;
+    created_at: string;
+    clienteid?: string;
+    detalles_ventas: DetalleVenta[];
+}
+
+export interface VentaDetails {
+  id: string;
+  ventaid: string;
+  productoid: string;
+  quantity: number;
+  price: number;
+  iva_percentage?: number;
+  sale_date: string;
+  discount?: number;
+}
+
+export interface ClientData {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  address?: string;
 }

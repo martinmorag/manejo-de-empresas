@@ -52,6 +52,12 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email },
         });
 
+        const plainTextPassword = 'soyadministrador';  // This should be a securely entered password
+        const saltRounds = 10;  // Number of bcrypt salt rounds
+        const hashedPassword = await bcrypt.hash(plainTextPassword, saltRounds);
+        console.log("this is the pasword")
+        console.log(hashedPassword)
+
       
         if (!user) {
           throw new Error('No se encontró usuario');

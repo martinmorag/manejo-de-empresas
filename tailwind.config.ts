@@ -20,6 +20,11 @@ const config: Config = {
         secondary: {
           DEFAULT: "#c2a15a"
         },
+        secondaryLight: {
+          DEFAULT: "#E3D5B5"
+        },secondaryLight2: {
+          DEFAULT: "#DDCDA6"
+        },
       },
     },
   },

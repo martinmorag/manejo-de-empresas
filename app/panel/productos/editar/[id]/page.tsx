@@ -1,5 +1,5 @@
 import React from "react";
-import EditProduct from "@/app/ui/EditProduct";
+import EditProduct from "@/app/ui/productos/EditProduct";
 import Link from "next/link";
 import { ChevronLeftIcon } from "@heroicons/react/24/outline";
 

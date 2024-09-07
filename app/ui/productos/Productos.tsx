@@ -92,37 +92,37 @@ const Productos : React.FC = () => {
     return (
         <>
             {productos.length > 0 ? (
-                <table className="w-full border-collapse">
+                <table className="w-full border-collapse text-sm">
                 <thead>
                     <tr className="bg-gray-300">
-                        <th className="border border-gray-300 px-4 py-2">Nombre</th>
+                        <th className="border border-gray-300 px-4 py-2 ">Nombre</th>
                         <th className="border border-gray-300 px-4 py-2">Descripción</th>
                         <th className="border border-gray-300 px-4 py-2">Código de Barras</th>
                         <th className="border border-gray-300 px-4 py-2">Precio</th>
-                        <th className="w-[100px] text-center px-2 py-2 bg-white"></th>
+                        <th className="w-[80px] text-center px-2 py-2 bg-white"></th>
                     </tr>
                 </thead>
                 <tbody>
                         {productos.map((producto) => (
                             <tr key={producto.id}>
-                                <td className="border border-gray-300 px-4 py-2">{producto.name}</td>
-                                <td className="border border-gray-300 px-4 py-2">{producto.description}</td>
-                                <td className="border border-gray-300 px-4 py-2">{producto.barcode}</td>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="border border-gray-300 px-4 ">{producto.name}</td>
+                                <td className="border border-gray-300 px-4 ">{producto.description}</td>
+                                <td className="border border-gray-300 px-4 ">{producto.barcode}</td>
+                                <td className="border border-gray-300 px-4 ">
                                     ${typeof producto.price === "number"
                                         ? producto.price.toFixed(2)
                                         : parseFloat(producto.price).toFixed(2)}
                                 </td>
-                                <td className="px-2 py-2 flex justify-between items-center space-x-2 w-[100px]">
+                                <td className="px-2 flex justify-between items-center space-x-2 w-[80px]">
                                     <button
                                         onClick={() => handleEdit(producto.id)}
                                     >
-                                        <PencilIcon className="w-9 h-9 bg-blue-500 text-white p-1 rounded hover:bg-blue-700" />
+                                        <PencilIcon className="w-7 h-7 bg-blue-500 text-white p-1 rounded hover:bg-blue-700" />
                                     </button>
                                     <button
                                         onClick={() => openConfirmationModal(producto.id)}
                                     >
-                                        <TrashIcon className="w-9 h-9 bg-red-500 text-white p-1 rounded hover:bg-red-700" />
+                                        <TrashIcon className="w-7 h-7 bg-red-500 text-white p-1 rounded hover:bg-red-700" />
                                     </button>
                                 </td>
                             </tr>

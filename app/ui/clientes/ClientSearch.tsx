@@ -1,31 +1,27 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Producto } from '@/app/lib/definitions'; // Adjust the import path as necessary
+import { Cliente, ClientSearchProps } from '@/app/lib/definitions'; // Adjust the import path as necessary
 
-interface ProductSearchProps {
-  onSelect: (product: Producto) => void;
-}
-
-const ProductSearch = ({ onSelect }: ProductSearchProps) => {
+const ClientSearch = ({ onSelect }: ClientSearchProps) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [productos, setProductos] = useState<Producto[]>([]);
+  const [clientes, setClientes] = useState<Cliente[]>([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Fetch products when the component mounts
+  // Fetch clients when the component mounts
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchClients = async () => {
       try {
-        const response = await fetch('/api/producto'); 
-        const data: Producto[] = await response.json();
-        setProductos(data);
+        const response = await fetch('/api/cliente'); 
+        const data: Cliente[] = await response.json();
+        setClientes(data);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error('Error fetching clients:', error);
       }
     };
 
-    fetchProducts();
+    fetchClients();
   }, []);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,15 +29,15 @@ const ProductSearch = ({ onSelect }: ProductSearchProps) => {
     setIsDropdownVisible(true);
   };
 
-  const handleProductSelect = (product: Producto) => {
-    onSelect(product);
-    setSearchTerm('');
+  const handleClientSelect = (client: Cliente) => {
+    onSelect(client);
+    setSearchTerm(client.name); // Update searchTerm to reflect selected client's name
     setIsDropdownVisible(false);
   };
 
-  const filteredProducts = productos.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.barcode.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredClients = clientes.filter(client =>
+    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Handle clicks outside of the dropdown to close it
@@ -62,21 +58,21 @@ const ProductSearch = ({ onSelect }: ProductSearchProps) => {
     <div className="relative" ref={dropdownRef}>
       <input
         type="text"
-        placeholder="Busca por nombre o código de barras"
+        placeholder="Busca por nombre o correo"
         value={searchTerm}
         onChange={handleSearchChange}
         className="w-full border rounded-md p-2"
         onFocus={() => setIsDropdownVisible(true)}
       />
-      {isDropdownVisible && filteredProducts.length > 0 && (
+      {isDropdownVisible && filteredClients.length > 0 && (
         <div className="absolute z-10 w-full bg-white border rounded-md shadow-lg mt-1">
-          {filteredProducts.map(product => (
+          {filteredClients.map(client => (
             <div
-              key={product.id}
+              key={client.id}
               className="p-2 cursor-pointer hover:bg-gray-100"
-              onClick={() => handleProductSelect(product)}
+              onClick={() => handleClientSelect(client)}
             >
-              {product.name} - {product.barcode}
+              {client.name} - {client.email}
             </div>
           ))}
         </div>
@@ -85,4 +81,4 @@ const ProductSearch = ({ onSelect }: ProductSearchProps) => {
   );
 };
 
-export default ProductSearch;
+export default ClientSearch;

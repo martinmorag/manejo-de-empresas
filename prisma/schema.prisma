@@ -33,6 +33,7 @@ model negocios {
   usuarios   usuarios[]
   productos  productos[]
   ventas     ventas[]
+  clientes   clientes[]
 }
 
 model productos {
@@ -52,13 +53,19 @@ model productos {
 model ventas {
   id             String      @id @default(uuid())
   negocioid      String
-  total          Decimal     @db.Decimal(10, 2)
+  payment        Decimal     @db.Decimal(10, 2)
+  balance_due    Decimal?    @db.Decimal(10, 2)
+  status         String?     @db.VarChar(20)
   payment_method String?     @db.VarChar(100)
+  total          Decimal     @db.Decimal(10, 2)
   created_at     DateTime    @default(now()) @db.Timestamp(0)
+  clienteid       String?
 
   // Relations
   negocio        negocios     @relation(fields: [negocioid], references: [id], onUpdate: Cascade, onDelete: NoAction)
+  cliente        clientes?    @relation(fields: [clienteid], references: [id], onUpdate: Cascade, onDelete: SetNull)
   detalles_ventas detalles_ventas[]
+  deuda           deudas[]
 
   @@map("ventas")
 }
@@ -78,6 +85,41 @@ model detalles_ventas {
   producto   productos   @relation(fields: [productoid], references: [id], onUpdate: Cascade, onDelete: NoAction)
 
   @@map("detalles_ventas")
+}
+
+model clientes {
+  id          String     @id @default(uuid())
+  negocioid   String
+  name        String
+  email       String    @unique
+  phone        String?
+  address     String?
+  created_at  DateTime  @default(now()) @db.Timestamp(0)
+  updated_at  DateTime  @updatedAt @db.Timestamp(0) // Updated automatically
+
+  // Relations
+  negocio     negocios  @relation(fields: [negocioid], references: [id], onUpdate: Cascade, onDelete: NoAction)
+  venta       ventas[]  
+  deuda       deudas[]
+
+  @@map("clientes")
+}
+
+model deudas {
+  id         String   @id @default(uuid())
+  cliente_id   String
+  venta_id    String?
+  amount     Decimal  @db.Decimal(10, 2)
+  due_date    DateTime? // Optional field
+  status     String   // Example statuses: 'pending', 'paid', 'overdue'
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Relations
+  client     clientes  @relation(fields: [cliente_id], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  venta      ventas?  @relation(fields: [venta_id], references: [id], onUpdate: Cascade, onDelete: NoAction)
+
+  @@map("deudas") // Map Prisma model to the actual table name in the database
 }
 
 

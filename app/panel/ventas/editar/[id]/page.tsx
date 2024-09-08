@@ -1,5 +1,5 @@
 import React from "react";
-import EditVenta  from "@/app/ui/EditVenta";
+import EditVenta  from "@/app/ui/ventas/EditVenta";
 
 const Page : React.FC = () => {
     return (

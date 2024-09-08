@@ -18,6 +18,7 @@ const SideNav : React.FC = () => {
                 const isTrue = pathname === link.href;
                 return (
                     <Link
+                    key={link.name}
                     href={`${link.href}`} 
                     className={`p-2 rounded-md
                     ${isTrue && "bg-secondaryLight2"}`}

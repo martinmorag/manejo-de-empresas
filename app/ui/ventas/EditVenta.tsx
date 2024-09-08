@@ -2,8 +2,8 @@
 
 import { useState, useEffect, FormEvent, useCallback } from 'react';
 import { CreateVentaFormData, Producto, DetalleVenta, Cliente } from '@/app/lib/definitions';
-import EditProductSearch from './EditProductSearch'; 
-import EditClientSearch from './clientes/EditClientSearch';
+import EditProductSearch from '../productos/EditProductSearch'; 
+import EditClientSearch from '../clientes/EditClientSearch';
 import { useRouter, usePathname } from 'next/navigation';
 
 const EditVenta = () => {

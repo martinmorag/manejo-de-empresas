@@ -55,6 +55,7 @@ const PersonalInfo : React.FC = () => {
 
             {images.map((image) => (
                 <div
+                key={image.id}
                 className={`p-3 rounded-lg cursor-pointer ${selected === image.id && "bg-secondaryLight"}`}
                 onClick={() => handleSelection(image.id)}
                 >

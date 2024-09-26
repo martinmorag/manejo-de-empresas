@@ -49,7 +49,7 @@ const DropDown: React.FC<DropDownProps> = ({  session }) => {
   const handleDropdownClick = () => {
     setShow(prev => !prev);
   };
-
+  
   return (
     <div className="relative w-[12vw] h-full flex flex-col items-center justify-center">
       <div 
@@ -57,12 +57,12 @@ const DropDown: React.FC<DropDownProps> = ({  session }) => {
         onClick={handleDropdownClick}
         className={"flex items-center justify-center h-[100%] cursor-pointer w-[50px] h-[auto] mr-[0.2rem]"}
       ><Image
-      src={`/${data?.default_picture || "loading"}.png`}
+      src={data?.profile_image ? data.profile_image : `/${data?.default_picture}.png`}
       alt="Foto de perfil"
-      width={40}
-      height={40}
+      width={42}
+      height={42}
+      className="rounded-full"
       /></div>
-
       
 
       {show && (

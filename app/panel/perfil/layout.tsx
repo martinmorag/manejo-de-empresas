@@ -17,11 +17,11 @@ export const metadata : Metadata = {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
     return (
-        <div className="flex">
-            <div className="w-[20vw] h-[100%] m-1">
+        <div className="flex h-[100%]">
+            <div className="w-[20vw] min-h-[88vh] flex flex-col justify-between m-4 bg-secondaryLight rounded-md">
                 <SideNav />
             </div>
-            <div>
+            <div className="w-[80vw] h-[100%] overflow-auto p-4">
                 {children}
             </div>
         </div>

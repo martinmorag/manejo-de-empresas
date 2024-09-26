@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/app/lib/prisma';
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     const { id } = params;
@@ -19,7 +17,15 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-        return NextResponse.json(profile);
+        const profileImageBase64 = profile.profile_image
+        ? `${profile.profile_image}`
+        : null;
+
+        
+        return NextResponse.json({
+            ...profile,
+            profile_image: profileImageBase64,
+        });
     } catch (err: any) {
         console.error('Error fetching data:', err.message);
         return NextResponse.json({ error: err.message }, { status: 500 });

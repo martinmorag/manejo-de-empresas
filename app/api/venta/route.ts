@@ -161,8 +161,12 @@ export async function GET(req: NextRequest) {
         const ventas = await prisma.ventas.findMany({
             where: { negocioid: negocioId },
             include: {
-                detalles_ventas: true, // Include detalles_ventas if needed
-            },
+              detalles_ventas: {
+                  include: {
+                      producto: true, // Include the related product details
+                  },
+              },
+          },
         });
 
         return NextResponse.json(ventas);

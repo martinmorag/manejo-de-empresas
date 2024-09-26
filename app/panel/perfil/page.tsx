@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { ProfileData } from "@/app/lib/definitions";
-import PersonalInfo from "@/app/ui/perfil/PersonalInfo";
+import React from "react";
+import EditPersonal from "@/app/ui/perfil/EditPersonal";
 
 const Page : React.FC = () => {
     // const [data, setData] = useState<ProfileData | null>(null);
@@ -29,7 +28,7 @@ const Page : React.FC = () => {
 
     return (
         <>
-        <PersonalInfo />
+        <EditPersonal />
         </>
     )
 } 

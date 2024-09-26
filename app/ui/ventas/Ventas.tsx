@@ -99,6 +99,7 @@ const Ventas: React.FC = () => {
                     <thead>
                         <tr className="bg-gray-300">
                             <th className="border border-gray-300 px-4 py-2">Fecha</th>
+                            <th className="border border-gray-300 px-4 py-2">Producto</th>
                             <th className="border border-gray-300 px-4 py-2">Pago</th>
                             <th className="border border-gray-300 px-4 py-2">Saldo Pendiente</th>
                             <th className="border border-gray-300 px-4 py-2">Método de Pago</th>
@@ -111,6 +112,13 @@ const Ventas: React.FC = () => {
                                 <tr onClick={() => toggleDetails(venta.id)} className="cursor-pointer">
                                     <td className="border border-gray-300 px-4">
                                         {new Date(venta.created_at).toLocaleDateString()}
+                                    </td>
+                                    <td className="border border-gray-300 px-4">
+                                        {venta.detalles_ventas.map((detalle) => (
+                                            <p key={detalle.id}> {/* Assuming detalle has a unique ID */}
+                                                {detalle.producto?.name} {/* Display product name */}
+                                            </p>
+                                        ))}
                                     </td>
                                     <td className="border border-gray-300 px-4">
                                         ${parseFloat(venta.payment.toString()).toFixed(2)}

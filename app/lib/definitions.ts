@@ -22,7 +22,8 @@ declare module 'next-auth' {
 }
 
 export interface ProfileData {
-  default_picture : string;
+  default_picture? : string;
+  profile_image?: string;
 }
 
 export interface Usuario {
@@ -31,6 +32,7 @@ export interface Usuario {
   email: string;
   password: string;
   default_picture: string;
+  profile_image: string;
 }
 
 export interface DropDownProps {
@@ -43,6 +45,13 @@ export interface Producto {
   description: string;
   barcode: string;
   price: number | string;
+}
+
+export interface Negocio {
+  id: string;
+  name: string;
+  location: string;
+  iva_percentage: number;
 }
 
 export interface Cliente {
@@ -98,6 +107,7 @@ export interface DetalleVenta {
   sale_date: string; 
   discount?: number;
   iva_percentage: number;
+  producto: Producto;
 }
 
 export interface UpdateVentaFormData {
@@ -153,4 +163,21 @@ export interface ClientData {
   email: string;
   phone?: string;
   address?: string;
+}
+
+
+
+/* TABLES */
+
+export interface NetRevenueData {
+  total_sales: number;
+  total_debt: number;
+  actual_amount: number;
+}
+
+export interface ByProduct {
+  product_id: string;
+  product_name: string | null;
+  total_sales: number;
+  total_quantity: string;
 }

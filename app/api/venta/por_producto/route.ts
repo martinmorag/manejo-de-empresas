@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions'; // Adjust the import path as necessary
-import { prisma } from '@/app/lib/prisma'; // Adjust the import path to your Prisma client
+import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions'; 
+import { prisma } from '@/app/lib/prisma'; 
 
 export async function GET(req: NextRequest) {
     try {
@@ -11,7 +11,6 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ message: 'No autorizado' }, { status: 401 });
         }
 
-        // Fetch the user's negocioid based on their email from the session
         const usuario = await prisma.usuarios.findUnique({
             where: { email: session.user?.email as string },
             select: { negocioid: true },
@@ -23,28 +22,46 @@ export async function GET(req: NextRequest) {
 
         const negocioId = usuario.negocioid;
 
-        // Get sales data grouped by product
-        const result = await prisma.detalles_ventas.groupBy({
+        const mostSoldProducts = await prisma.detalles_ventas.groupBy({
             by: ['productoid'],
-            where: { venta: { negocioid: negocioId } },
-            _sum: { price: true, quantity: true },
-            _count: { id: true },
+            _sum: {
+                price: true,      // Sum of the price to get total sales
+                quantity: true,   // Sum of the quantity sold
+            },
+            where: {
+                venta: {
+                    negocioid: negocioId,
+                },
+            },
+            orderBy: {
+                _sum: {
+                    price: 'desc',  // Order by total sales amount
+                },
+            },
+            take: 10,  // Limit to the top 10 products
         });
 
-        // Map to get product names and sales
-        const productSales = await Promise.all(result.map(async (item) => {
-            const product = await prisma.productos.findUnique({ where: { id: item.productoid } });
-            const price = item._sum.price ? item._sum.price.toNumber() : 0;  // Convert Decimal to number
-            const quantity = item._sum.quantity as number;  // Type assertion
-            return {
-                product_name: product?.name ?? 'Unknown',
-                total_sales: price * quantity,
-            };
-        }));
+        const productsWithSales = await Promise.all(
+            mostSoldProducts.map(async (product) => {
+                const productDetails = await prisma.productos.findUnique({
+                    where: { id: product.productoid },
+                });
 
-        return NextResponse.json(productSales);
+                const totalSales = product._sum?.price?.toNumber() ?? 0;  // Ensure it's a number
+                const totalQuantity = product._sum?.quantity ?? 0;        // Total quantity sold
+
+                return {
+                    product_id: product.productoid,
+                    product_name: productDetails?.name,
+                    total_sales: totalSales,   // Total sales amount
+                    total_quantity: totalQuantity, // Total quantity sold
+                };
+            })
+        );
+
+        return NextResponse.json(productsWithSales);
     } catch (error) {
-        console.error("Error fetching sales by product:", error);
+        console.error("Error fetching most sold products:", error);
         return NextResponse.json({ message: 'Error interno del servidor' }, { status: 500 });
     }
 }

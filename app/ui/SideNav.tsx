@@ -13,7 +13,7 @@ const SideNav : React.FC = () => {
     const pathname = usePathname()
 
     return (
-        <div className="flex flex-col bg-secondaryLight rounded-md p-2 m-2">
+        <div className="flex flex-col h-[100%] bg-secondaryLight rounded-md p-2 m-2 flex-grow">
             {links.map((link) => {
                 const isTrue = pathname === link.href;
                 return (

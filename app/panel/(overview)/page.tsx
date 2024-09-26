@@ -2,6 +2,8 @@ import { Metadata } from "next";
 import Overview from "@/app/ui/Overview";
 import Image from "next/image";
 import UltimasVentas from "@/app/ui/tablas/UltimasVentas";
+import NetRevenue from "@/app/ui/tablas/NetRevenue";
+import ByProducts from "@/app/ui/tablas/ByProducts";
 
 export const metadata : Metadata = {
   title: "Crece",
@@ -23,8 +25,9 @@ const Page = () => {
       <div className="flex justify-between items-center w-[85vw]">
         <Overview />
       </div>
-      <div className="flex justify-center my-8 w-[60vw] ">
-        <UltimasVentas />
+      <div className="flex justify-around my-8 w-[60vw] ">
+        <NetRevenue />
+        <ByProducts />
       </div>
     </div>
   );

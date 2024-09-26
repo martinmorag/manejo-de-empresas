@@ -4,7 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import { prisma } from '@/app/lib/prisma'; 
 import { z } from "zod";
 
-export const updateUserSchema = z.object({
+const updateUserSchema = z.object({
   usuario_name: z.string().min(1, "El nombre del usuario es requerido"),
   usuario_lastname: z.string().min(1, "El apellido del usuario es requerido"),
   usuario_picture: z.string().min(1, "La imagen del usuario es requerida"),

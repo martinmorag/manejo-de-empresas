@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
                         created_at: true, // Include the date of the venta
                     },
                 },
-                client: {
+                cliente: {
                     select: {
                         name: true, // Include the client's name
                     },

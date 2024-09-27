@@ -10,6 +10,7 @@ export const metadata : Metadata = {
   description: "Bienvenido a Crece, acá va a poder organizar y mantener registros de su negocio actualizado y de manera eficiente."
 }
 
+
 const Page = () => {
   return (
     <div className="flex flex-col items-center">
@@ -28,6 +29,7 @@ const Page = () => {
       <div className="flex justify-around my-8 w-[60vw] ">
         <NetRevenue />
         <ByProducts />
+        
       </div>
     </div>
   );

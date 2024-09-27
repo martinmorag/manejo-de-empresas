@@ -22,7 +22,7 @@ const Page : React.FC = () => {
                 <div className="w-[20vw]">
                     <h1 className="mt-2 text-center text-[1.5rem]">Bienvenido</h1>
                     <p className="mt-2 text-center text-[1.1rem]">Por favor ingrese para continuar</p>
-                    <hr  className="border-gray-400 my-[3rem]"/>
+                    <hr  className="border-gray-400 my-[1rem]"/>
                     <SignIn  />
                 </div>
             </div>

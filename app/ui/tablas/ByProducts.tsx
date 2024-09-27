@@ -53,6 +53,9 @@ const ByProducts: React.FC = () => {
             
         }}>
             <h2 className="text-xl">Productos mas vendidos</h2>
+            {products.length === 0 ? (
+                <p className='my-3'>Ningún producto se vendió este mes</p> // Display this message if no products are sold
+            ) : (
             <ul>
                 {products.map((product) => (
                     <li key={product.product_id} 
@@ -77,6 +80,7 @@ const ByProducts: React.FC = () => {
                     </li>
                 ))}
             </ul>
+            )}
         </div>
     );
 };

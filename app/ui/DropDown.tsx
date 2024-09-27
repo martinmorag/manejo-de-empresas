@@ -67,7 +67,7 @@ const DropDown: React.FC<DropDownProps> = ({  session }) => {
 
       {show && (
         <div ref={dropdownRef} 
-        className="absolute top-full mt-[0.5rem] right-[0.2rem] w-full bg-white shadow-lg rounded-md z-10">
+        className="absolute top-full mt-[0.5rem] right-[0.2rem] w-[120%] bg-white shadow-lg rounded-md z-10">
           <Link href="/panel/perfil"><div className="px-4 py-2 hover:bg-gray-100 w-[100%] rounded-t-md text-center">
             Mi Perfil
           </div></Link>

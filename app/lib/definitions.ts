@@ -74,7 +74,7 @@ export interface Deuda {
   status: string;
   created_at: string;
   updated_at: string;
-  client: {
+  cliente: {
     name: string;  // Adding client name
   };
   venta: {

@@ -99,7 +99,7 @@ const Deudas : React.FC = () => {
                 <tbody>
                     {deudas.map((deuda) => (
                         <tr key={deuda.id}>
-                            <td className="border border-gray-300 px-4">{deuda.client.name}</td>
+                            <td className="border border-gray-300 px-4">{deuda.cliente.name}</td>
                             <td className="border border-gray-300 px-4">{new Date(deuda.venta.created_at).toLocaleDateString()}</td>
                             <td className="border border-gray-300 px-4">$ {deuda.amount}</td>
                             <td className="border border-gray-300 px-4">{deuda.status}</td>

@@ -181,3 +181,13 @@ export interface ByProduct {
   total_sales: number;
   total_quantity: string;
 }
+
+export interface AccesosDirectos {
+  lista_productos?: boolean;
+  lista_ventas?: boolean;
+  lista_clientes?: boolean;
+  lista_deudas?: boolean;
+  agregar_productos?: boolean;
+  agregar_venta?: boolean;
+  agregar_cliente?: boolean;
+}

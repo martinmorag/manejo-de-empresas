@@ -4,6 +4,7 @@ import Image from "next/image";
 import UltimasVentas from "@/app/ui/tablas/UltimasVentas";
 import NetRevenue from "@/app/ui/tablas/NetRevenue";
 import ByProducts from "@/app/ui/tablas/ByProducts";
+import AccesoDirecto from "@/app/ui/tablas/AccesoDirecto";
 
 export const metadata : Metadata = {
   title: "Crece",
@@ -25,6 +26,9 @@ const Page = () => {
       </div>
       <div className="flex justify-between items-center w-[85vw]">
         <Overview />
+      </div>
+      <div className="flex flex-col w-[85vw] mt-[6rem]">
+        <AccesoDirecto />
       </div>
       <div className="flex justify-around my-8 w-[60vw] ">
         <NetRevenue />

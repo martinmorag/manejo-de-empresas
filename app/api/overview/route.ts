@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
         // Fetch the user's negocioid based on their email from the session
         const usuario = await prisma.usuarios.findUnique({
             where: { email: session.user?.email as string },
-            select: { negocioid: true },
+            select: { negocioid: true, name: true },
         });
 
         if (!usuario?.negocioid) {
@@ -22,6 +22,7 @@ export async function GET(req: NextRequest) {
         }
 
         const negocioId = usuario.negocioid;
+        const userName = usuario.name;
 
         // Get the start and end of the current month
         const startOfMonth = new Date();
@@ -53,6 +54,7 @@ export async function GET(req: NextRequest) {
 
         // Return the aggregated data
         return NextResponse.json({
+            userName,
             totalAmount: result._sum.payment ?? 0,
             totalBalanceDue: result._sum.balance_due ?? 0, 
             quantityOfSales: result._count.id,

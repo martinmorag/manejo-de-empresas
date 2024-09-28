@@ -16,6 +16,7 @@ model usuarios {
   level      String   @db.VarChar(50)
   profile_image Bytes?
   default_picture String? @default("profile") @db.VarChar(50)
+  accesos_directos Json? @db.JsonB
   negocioid  String?  @db.Uuid
   created_at DateTime @default(now()) @db.Timestamptz
 

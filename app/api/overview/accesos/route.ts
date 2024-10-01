@@ -40,7 +40,7 @@ export async function PUT(req: NextRequest) {
         const { accesos_directos } = await req.json();
 
         // Ensure accesos_directos is provided
-        if (!accesos_directos || typeof accesos_directos !== 'string') {
+        if (!accesos_directos || typeof accesos_directos !== 'object') {
             return NextResponse.json({ message: 'accesos_directos is required and should be a string' }, { status: 400 });
         }
 

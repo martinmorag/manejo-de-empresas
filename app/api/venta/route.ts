@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
 
       // Fetch negocioId based on the logged-in user's email
       const usuario = await prisma.usuarios.findUnique({
-        where: { email: session.user?.email as string },
+        where: { id: session.user?.id as string },
         select: { negocioid: true },
       });
 
@@ -147,7 +147,7 @@ export async function GET(req: NextRequest) {
 
         // Fetch the user's negocioid based on their email from the session
         const usuario = await prisma.usuarios.findUnique({
-            where: { email: session.user?.email as string },
+            where: { id: session.user?.id as string },
             select: { negocioid: true },
         });
 
@@ -157,9 +157,23 @@ export async function GET(req: NextRequest) {
 
         const negocioId = usuario.negocioid;
 
+        
+        const { searchParams } = new URL(req.url);
+        const yearParam = searchParams.get('year');
+        const monthParam = searchParams.get('month');
+
+        const currentDate = new Date();
+        const year = yearParam ? parseInt(yearParam) : currentDate.getFullYear();
+        const month = monthParam ? parseInt(monthParam) : currentDate.getMonth() + 1;
+
         // Fetch all ventas for the given negocioId
         const ventas = await prisma.ventas.findMany({
-            where: { negocioid: negocioId },
+            where: { negocioid: negocioId,
+              created_at: {
+                gte: new Date(year, month - 1, 1), // First day of the month
+                lt: new Date(year, month, 1),      // First day of the next month
+            },
+             },
             include: {
               detalles_ventas: {
                   include: {
@@ -191,7 +205,7 @@ export async function PUT(req: NextRequest) {
 
       // Fetch negocioId based on the logged-in user's email
       const usuario = await prisma.usuarios.findUnique({
-        where: { email: session.user?.email as string },
+        where: { id: session.user?.id as string },
         select: { negocioid: true },
       });
 

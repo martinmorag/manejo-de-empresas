@@ -110,13 +110,14 @@ class UploadProfile extends React.Component<UploadProfileProps, UploadProfileSta
         onChange={this.handleNewImage}
         className="hidden"
         /><label htmlFor="upload-img-input" className="bg-secondary text-white px-4 py-2 rounded-md cursor-pointer">
-            {this.state.image ? "Elegir otra Imagen" : "Elegir Imagen" }
+            {this.state.image ? "Subir otra Imagen" : "Subir Imagen" }
             </label>
         <br />
         {this.state.image && 
             <div>
             <button onClick={this.handleSubmit} 
-            className="mt-5 border border-solid border-main py-1 px-3 rounded-md text-lg">Elegir</button>
+            className="mt-5 border border-solid border-main py-1 px-3 rounded-md text-lg transition-transform duration-150 ease-in-out transform active:scale-95 active:bg-main active:text-white">
+            Elegir</button>
             </div>
         }
       </div>

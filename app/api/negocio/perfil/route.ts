@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
         // Fetch the complete user information to get the negocioId
         const usuario = await prisma.usuarios.findUnique({
             where: {
-                email: session.user.email,
+                id: session.user.id,
             },
             select: {
                 negocioid: true,  // Assuming negocioId is a field in your user model

@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
         // Fetch negocioid based on the logged-in user's email
         const usuario = await prisma.usuarios.findUnique({
-            where: { email: session.user?.email as string },
+            where: { id: session.user?.id as string },
             include: { negocio: true },
         });
 
@@ -83,7 +83,7 @@ export async function PUT(req: NextRequest) {
 
         // Fetch negocioid based on the logged-in user's email
         const usuario = await prisma.usuarios.findUnique({
-            where: { email: session.user?.email as string },
+            where: { id: session.user?.id as string },
             include: { negocio: true },
         });
 
@@ -156,7 +156,7 @@ export async function DELETE(req: NextRequest) {
         }
 
         const usuario = await prisma.usuarios.findUnique({
-            where: { email: session.user?.email as string },
+            where: { id: session.user?.id as string },
             include: { negocio: true },
         });
 
@@ -198,7 +198,7 @@ export async function GET(req: NextRequest) {
 
         // Fetch the user's negocioid based on their email from the session
         const usuario = await prisma.usuarios.findUnique({
-            where: { email: session.user?.email as string },
+            where: { id: session.user?.id as string },
             include: { negocio: true },
         });
 

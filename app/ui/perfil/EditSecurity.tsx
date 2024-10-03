@@ -43,23 +43,29 @@ const EditSecurity : React.FC = () => {
         setValidationErrors(null);
 
         // Password confirmation check
-        if (newPassword !== confirmNewPassword) {
+        if (newPassword && newPassword !== confirmNewPassword) {
           setMessage("La nueva contraseña y la confirmación no coinciden.");
           setIsSuccess(false);
           return;
         }
+
+        const payload: any = {
+          new_email: newEmail,
+          current_password: currentPassword, // Include current password for verification
+        };
+    
+        // If the user entered a new password, include it in the payload
+        if (newPassword) {
+            payload.new_password = newPassword;
+        }
     
         try {
-          const response = await fetch("/api/user/update", {
+          const response = await fetch("/api/perfil/seguridad", {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              new_email: newEmail,
-              new_password: newPassword,
-              current_password: currentPassword, // Include current password for verification
-            }),
+            body: JSON.stringify(payload),
           });
     
           const result = await response.json();
@@ -121,7 +127,7 @@ const EditSecurity : React.FC = () => {
                         <input
                         type="email"
                         id="email"
-                        value={usuario?.email}
+                        value={newEmail}
                         onChange={(e) => setNewEmail(e.target.value)}
                         className="w-full p-2 border rounded-md"
                         required

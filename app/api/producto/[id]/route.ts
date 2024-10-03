@@ -15,7 +15,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
         console.log("Session found, fetching user...");
         const usuario = await prisma.usuarios.findUnique({
-            where: { email: session.user?.email as string },
+            where: { id: session.user?.id as string },
             include: { negocio: true },
         });
 

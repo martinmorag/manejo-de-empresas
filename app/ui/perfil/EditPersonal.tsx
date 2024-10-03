@@ -61,9 +61,12 @@ const EditPersonal : React.FC = () => {
         }));
         setSelected(null); // Clear selection of default images
     };
-
+    console.log(formData)
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        const { usuario_picture, ...dataToSend } = formData;
+
         try {
             const response = await fetch("/api/perfil/usuario", {
                 method: "PUT",
@@ -71,9 +74,9 @@ const EditPersonal : React.FC = () => {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    ...formData,
-                    profile_image: uploadedImage || null, // Set profile_image or null
-                    default_picture: selected ? formData.usuario_picture : null, // Set default_picture or null
+                    ...dataToSend,
+                    profileImage: uploadedImage || null, 
+                    defaultPicture: selected ? formData.usuario_picture : null, 
                 }),
             });
 

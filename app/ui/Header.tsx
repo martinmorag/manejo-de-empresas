@@ -74,7 +74,6 @@ const Header : React.FC<DropDownProps> = ({ session }) => {
                         </Link>
                     </div>
                 </div>
-                {/* end of dropdown with hover and delay */}
             </div>
             <DropDown session={session} />
         </div>

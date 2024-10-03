@@ -15,6 +15,7 @@ const updateCredentialsSchema = z.object({
 export async function PUT(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
+    console.log("Session Data:", session);
 
     // Check if the user is authenticated
     if (!session || !session.user || !session.user.email) {
@@ -38,15 +39,16 @@ export async function PUT(req: NextRequest) {
 
     // Fetch the user using email from session
     const usuario = await prisma.usuarios.findUnique({
-      where: { email: session.user.email },
+      where: { id: session.user.id },
     });
 
     if (!usuario) {
       return NextResponse.json({ message: 'Usuario no encontrado' }, { status: 404 });
     }
 
+    // Verify the current password
     if (old_password && !(await bcrypt.compare(old_password, usuario.password))) {
-        return NextResponse.json({ message: 'La contraseña actual no es correcta' }, { status: 400 });
+      return NextResponse.json({ message: 'La contraseña actual no es correcta' }, { status: 400 });
     }
 
     // Prepare data to update
@@ -54,13 +56,13 @@ export async function PUT(req: NextRequest) {
 
     // Update email if provided and different from current
     if (new_email && new_email !== usuario.email) {
-        const emailExists = await prisma.usuarios.findUnique({
-          where: { email: new_email },
-        });
-        if (emailExists) {
-          return NextResponse.json({ message: 'El email ya está en uso' }, { status: 400 });
-        }
-        updateData.email = new_email;
+      const emailExists = await prisma.usuarios.findUnique({
+        where: { email: new_email },
+      });
+      if (emailExists) {
+        return NextResponse.json({ message: 'El email ya está en uso' }, { status: 400 });
+      }
+      updateData.email = new_email;
     }
 
     // Update password if provided
@@ -70,20 +72,20 @@ export async function PUT(req: NextRequest) {
       updateData.password = hashedPassword;
     }
 
-    // Update the user in the database
+    // Update the user in the database with email and/or password
     await prisma.usuarios.update({
-      where: { email: session.user.email },
+      where: { id: usuario.id }, // Use the user ID instead of email
       data: updateData,
     });
 
-    if (Object.keys(updateData).length > 0) {
-        await prisma.usuarios.update({
-          where: { email: session.user.email },
-          data: updateData,
-        });
-    }
-
     return NextResponse.json({ message: 'Credenciales actualizadas con éxito' });
+
+    // if (Object.keys(updateData).length > 0) {
+    //     await prisma.usuarios.update({
+    //       where: { id: session.user.id },
+    //       data: updateData,
+    //     });
+    // }
   } catch (error) {
     console.error("Error updating user credentials:", error);
     return NextResponse.json({ message: 'Error interno del servidor' }, { status: 500 });

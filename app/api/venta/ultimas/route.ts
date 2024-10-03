@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
 
         // Fetch the user's negocioid based on their email from the session
         const usuario = await prisma.usuarios.findUnique({
-            where: { email: session.user?.email as string },
+            where: { id: session.user?.id as string },
             select: { negocioid: true },
         });
 

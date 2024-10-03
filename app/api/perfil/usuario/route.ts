@@ -7,7 +7,8 @@ import { z } from "zod";
 const updateUserSchema = z.object({
   usuario_name: z.string().min(1, "El nombre del usuario es requerido"),
   usuario_lastname: z.string().min(1, "El apellido del usuario es requerido"),
-  usuario_picture: z.string().min(1, "La imagen del usuario es requerida"),
+  profileImage: z.string().nullable().optional(),  
+  defaultPicture: z.string().nullable().optional(),
   negocio_name: z.string().min(1, "El nombre del negocio es requerido"),
   negocio_location: z.string().min(1, "La localización del negocio es requerida"),
   negocio_iva_percentage: z
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
         // Fetch the full user information from the database using the email from the session
         const usuario = await prisma.usuarios.findUnique({
             where: {
-                email: session.user.email,
+                id: session.user.id,
             },
         });
 
@@ -75,7 +76,8 @@ export async function PUT(req: NextRequest) {
       const { 
         usuario_name, 
         usuario_lastname, 
-        usuario_picture, 
+        profileImage,
+        defaultPicture,
         negocio_name, 
         negocio_location, 
         negocio_iva_percentage 
@@ -83,21 +85,23 @@ export async function PUT(req: NextRequest) {
   
       // Fetch the user using email from session
       const usuario = await prisma.usuarios.findUnique({
-        where: { email: session.user.email },
+        where: { id: session.user.id },
       });
   
       if (!usuario) {
         return NextResponse.json({ message: 'Usuario no encontrado' }, { status: 404 });
       }
+
+      const imageBuffer = profileImage ? Buffer.from(profileImage) : null;
+
   
-      // Update the user and business data in the database
       await prisma.usuarios.update({
         where: { email: session.user.email },
         data: {
           name: usuario_name,
           lastname: usuario_lastname,
-          profile_image: usuario_picture ? Buffer.from(usuario_picture) : null, // Handle image as Buffer
-          default_picture: usuario_picture ? null : usuario.default_picture, // Handle default image
+          profile_image: imageBuffer,  // Ensure it's null if not provided
+          default_picture: defaultPicture || null,
         },
       });
   

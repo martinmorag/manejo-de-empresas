@@ -56,14 +56,14 @@ const ByProducts: React.FC = () => {
             {products.length === 0 ? (
                 <p className='my-3'>Ningún producto se vendió este mes</p> // Display this message if no products are sold
             ) : (
-            <ul>
+            <ul className='flex'>
                 {products.map((product) => (
                     <li key={product.product_id} 
                     style={{
                         backgroundColor: '#e0e0e0', // Light background for each list item
                         borderRadius: '10px', // Rounded corners
                         boxShadow: '5px 5px 10px #bebebe, -5px -5px 10px #ffffff', // Shadow for neumorphism effect
-                        margin: '10px 0', // Space between list items
+                        margin: '10px 15px', // Space between list items
                         padding: '10px', // Padding for spacing inside each list item
                         transition: 'all 0.3s ease', // Smooth transition for hover effect
                     }}

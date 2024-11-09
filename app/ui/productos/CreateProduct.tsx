@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const CreateProduct : React.FC = () => {
     const [formData, setFormData] = useState({
@@ -68,6 +68,17 @@ const CreateProduct : React.FC = () => {
             setValidationErrors(null);
         }
     };
+
+    /* Message timeout */
+
+    useEffect(() => {
+        if (message) {
+            const timer = setTimeout(() => {
+                setMessage("")
+            }, 5000)
+            return () => clearTimeout(timer);
+        }         
+    }, [message])
 
 
     return (

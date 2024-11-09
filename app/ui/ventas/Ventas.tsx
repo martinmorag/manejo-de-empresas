@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import ConfirmationModal from "@/app/ui/ConfirmDelete"; // Adjust import path as necessary
-import { Venta } from "@/app/lib/definitions";
+import { Venta, AvailableMonth } from "@/app/lib/definitions";
+import * as XLSX from "xlsx";
 
 const Ventas: React.FC = () => {
     const [ventas, setVentas] = useState<Venta[]>([]);
@@ -13,33 +14,117 @@ const Ventas: React.FC = () => {
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [selectedVentaId, setSelectedVentaId] = useState<string | null>(null);
     const [expandedVentaId, setExpandedVentaId] = useState<string | null>(null);
+    const [availableMonths, setAvailableMonths] = useState<AvailableMonth[]>([]);
+    const [selectedMonthYear, setSelectedMonthYear] = useState<string>("");;
     const router = useRouter();
 
     useEffect(() => {
-        const fetchVentas = async () => {
+        const fetchAvailableMonths = async () => {
             try {
-                const response = await fetch("/api/venta", {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
+                const response = await fetch("/api/venta");
+                if (!response.ok) throw new Error("Error obteniendo los meses disponibles.");
+                
+                const data: AvailableMonth[] = await response.json();
+                setAvailableMonths(data); 
 
-                if (!response.ok) {
-                    throw new Error("Error obteniendo las ventas.");
+                if (data.length > 0) {
+                    setSelectedMonthYear(`${data[data.length - 1].month} ${data[data.length - 1].year}`);
+                    console.log("selected month year actual: ", `${data[data.length - 1].month} ${data[data.length - 1].year}`)
                 }
-
-                const data = await response.json();
-                setVentas(data);
             } catch (error) {
-                setError("Error al cargar las ventas.");
-            } finally {
-                setLoading(false);
+                setError("Error al cargar los meses disponibles.");
             }
         };
 
-        fetchVentas();
-    }, []); // Empty dependency array means this effect runs once on mount
+        fetchAvailableMonths();
+    }, []);
+
+    console.log("usestate months ", availableMonths);
+    const [month, year] = selectedMonthYear.split(" "); 
+    console.log("Month:", month, "Year:", year);
+
+    useEffect(() => {
+        if (selectedMonthYear) {
+            const [month, year] = selectedMonthYear.split(" "); 
+            console.log("Month:", month, "Year:", year);
+
+            const fetchVentas = async () => {
+                setLoading(true);
+                try {
+                    const response = await fetch(`/api/venta?year=${year}&month=${month}`);
+                    if (!response.ok) throw new Error("Error obteniendo las ventas.");
+                    
+                    const data: Venta[] = await response.json();
+                    setVentas(data);
+                } catch (error) {
+                    setError("Error al cargar las ventas.");
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            fetchVentas();
+        }
+    }, [selectedMonthYear]);
+
+    const handleMonthYearChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedMonthYear(event.target.value);
+    };
+
+    const monthNames = [
+        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+    ];
+    const monthIndex = parseInt(month, 10) - 1; // Convert to zero-based index
+    const monthName = monthNames[monthIndex];
+    const exportToExcel = () => {
+        const worksheetData = ventas.map((venta) => ({
+            Fecha: new Date(venta.created_at).toLocaleDateString(),
+            Productos: venta.detalles_ventas.map((detalle) => detalle.productname).join(", "),
+            Pago: typeof venta.payment === 'number' ? venta.payment.toFixed(2) : parseFloat(venta.payment).toFixed(2),
+            "Saldo Pendiente": typeof venta.balance_due === 'number' 
+                ? venta.balance_due.toFixed(2) 
+                : venta.balance_due 
+                    ? parseFloat(venta.balance_due).toFixed(2) 
+                    : 'N/A',
+            "Método de Pago": venta.payment_method || 'N/A',
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Ventas");
+
+        const filename = `Ventas ${monthName} ${year}.xlsx`;
+        XLSX.writeFile(workbook, filename);
+    };
+
+    /* Pagination */
+
+    const itemsPerPage = 25;
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const totalPages = Math.ceil(ventas.length / itemsPerPage);
+
+    const getPaginatedData = () => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        return ventas.slice(startIndex, startIndex + itemsPerPage);
+    };
+
+    const displayedItems = getPaginatedData();
+
+    const nextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(prevPage => prevPage + 1);
+        }
+    };
+
+    const previousPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(prevPage => prevPage - 1);
+        }
+    };
+    
+    /* Toggle, Delete and Edit */
 
     const toggleDetails = (ventaId: string) => {
         setExpandedVentaId(expandedVentaId === ventaId ? null : ventaId);
@@ -74,6 +159,8 @@ const Ventas: React.FC = () => {
         }
     };
 
+    /*  Confirmation Modal and loading  */
+
     const openConfirmationModal = (id: string) => {
         setSelectedVentaId(id);
         setIsModalVisible(true);
@@ -94,6 +181,22 @@ const Ventas: React.FC = () => {
 
     return (
         <>
+            <div className="flex justify-between">
+                <select id="month-year-select" 
+                value={selectedMonthYear} 
+                onChange={handleMonthYearChange}
+                className="my-3 p-1 rounded-md">
+                    <option value="" disabled>Selecciona un mes</option>
+                    {availableMonths.map(({ formatted, month, year }) => (
+                        <option key={`${month}-${year}`} value={`${month} ${year}`}>
+                            {formatted}
+                        </option>
+                    ))}
+                </select>
+                <button onClick={exportToExcel} className="my-3 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-700">
+                    Descargar Ventas
+                </button>
+            </div>
             {ventas.length > 0 ? (
                 <table className="w-full border-collapse text-sm">
                     <thead>
@@ -103,11 +206,11 @@ const Ventas: React.FC = () => {
                             <th className="border border-gray-300 px-4 py-2">Pago</th>
                             <th className="border border-gray-300 px-4 py-2">Saldo Pendiente</th>
                             <th className="border border-gray-300 px-4 py-2">Método de Pago</th>
-                            <th className="w-[80px] text-center px-2 py-2 bg-white"></th>
+                            <th className="w-[80px] text-center px-2 py-2 bg-background"></th>
                         </tr>
                     </thead>
                     <tbody>
-                        {ventas.map((venta) => (
+                        {displayedItems.map((venta) => (
                             <React.Fragment key={venta.id}>
                                 <tr onClick={() => toggleDetails(venta.id)} className="cursor-pointer">
                                     <td className="border border-gray-300 px-4">
@@ -116,7 +219,7 @@ const Ventas: React.FC = () => {
                                     <td className="border border-gray-300 px-4">
                                         {venta.detalles_ventas.map((detalle) => (
                                             <p key={detalle.id}> {/* Assuming detalle has a unique ID */}
-                                                {detalle.producto?.name} {/* Display product name */}
+                                                {detalle.productname} {/* Display product name */}
                                             </p>
                                         ))}
                                     </td>
@@ -160,6 +263,17 @@ const Ventas: React.FC = () => {
                 </table>
             ) : (
                 <p>No hay ventas disponibles.</p>
+            )}
+            {totalPages > 1 && (
+                <div className="flex justify-center my-5">
+                    <button onClick={previousPage}>
+                        <ChevronLeftIcon className="w-5 h-5"/>
+                    </button>
+                    <p className="text-lg m-2 p-2 bg-gray-300 rounded-md">{currentPage}</p>
+                    <button onClick={nextPage}>
+                        <ChevronRightIcon className="w-5 h-5"/>
+                    </button>
+                </div>
             )}
             <ConfirmationModal
                 message="¿Estás seguro de que deseas eliminar esta venta?"

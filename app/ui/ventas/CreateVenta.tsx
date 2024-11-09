@@ -128,7 +128,7 @@
                 setErrors(prevErrors => ({ ...prevErrors, payment: 'El pago del cliente debe ser un número mayor a 0' }));
             }
         };    
-
+        
         const handleCreditToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
             const isOnCredit = e.target.checked;
             const calculatedDebt = isOnCredit ? totalWithIva - clientPayment : 0;
@@ -223,6 +223,7 @@
                 detalles_ventas: [
                     {
                         productoid: selectedProduct.id,
+                        productname: selectedProduct.name,
                         quantity,
                         price: selectedProductPrice,
                         iva_percentage: ivaPercentageNumber,
@@ -385,6 +386,7 @@
                                     type="checkbox" 
                                     checked={formData.is_on_credit} 
                                     onChange={handleCreditToggle} 
+                                    disabled={clientPayment===totalWithIva}
                                     className="mr-2"
                                 />
                                 Pagar parcialmente

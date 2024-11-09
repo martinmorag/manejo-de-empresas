@@ -63,6 +63,7 @@ const UpdateVentaSchema = z.object({
       z.object({
         id: z.string().uuid("ID del detalle debe ser un UUID").optional(),
         productoid: z.string().uuid("ID del producto debe ser un UUID"),
+        productname: z.string(),
         quantity: z.number().int().positive("La cantidad debe ser mayor a 0"),
         price: z.number().positive("El precio debe ser mayor a 0"),
         iva_percentage: z.number().min(0).max(100).optional(),
@@ -154,6 +155,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
                     price: detail.price,
                     iva_percentage: detail.iva_percentage || 0,
                     discount: detail.discount || 0,
+                    productname: detail.productname
                     },
                 });
                 }

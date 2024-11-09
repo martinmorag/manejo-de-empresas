@@ -2,8 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { Deuda } from "@/app/lib/definitions";
-import { TrashIcon } from "@heroicons/react/24/outline";
-import { useRouter } from "next/navigation";
 import ConfirmationModal from "@/app/ui/ConfirmDelete";
 
 const Deudas : React.FC = () => {
@@ -12,32 +10,57 @@ const Deudas : React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [selectedDeudaId, setSelectedDeudaId] = useState<string | null>(null);
+    const [months, setMonths] = useState<{ month: string; year: string; formatted: string }[]>([]);
+    const [selectedMonthYear, setSelectedMonthYear] = useState<string>('');
 
     useEffect(() => {
-        const fetchProductos = async () => {
+        const fetchMonths = async () => {
             try {
-                const response = await fetch("/api/deuda", {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error("Error obteniendo los productos.");
-                }
+                const response = await fetch("/api/deuda");
+                if (!response.ok) throw new Error("Error fetching months.");
 
                 const data = await response.json();
+                setMonths(data);
+
+                if (data.length > 0) {
+                    const lastMonth = data[data.length - 1].month; // Assuming the last entry is the latest month
+                    const lastYear = data[data.length - 1].year;
+                    setSelectedMonthYear(`${lastMonth}-${lastYear}`);
+                }
+            } catch (error) {
+                setError("Error fetching months.");
+            }
+        };
+        fetchMonths();
+    }, []);
+
+    useEffect(() => {
+        if (!selectedMonthYear) return;
+
+        const [month, year] = selectedMonthYear.split("-");
+        const fetchDeudas = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch(`/api/deuda?month=${month}&year=${year}`);
+                if (!response.ok) {
+                    const errorMessage = await response.text();
+                    console.error("Error Response:", errorMessage); // Debug
+                    throw new Error("Error fetching deudas.");
+                }
+    
+                const data = await response.json();
+                console.log("Received deudas:", data);
                 setDeudas(data);
             } catch (error) {
-                setError("Error al cargar los productos.");
+                console.error("Fetch Error:", error); // Debug
+                setError("Error fetching deudas.");
             } finally {
                 setLoading(false);
             }
         };
-
-        fetchProductos();
-    }, []); // Empty dependency array means this effect runs once on mount
+    
+        fetchDeudas();
+    }, [selectedMonthYear]);      
 
     const handleDelete = async () => {  
         if (!selectedDeudaId) return;
@@ -85,6 +108,25 @@ const Deudas : React.FC = () => {
 
     return (
         <>
+            <select
+                value={selectedMonthYear}
+                onChange={(e) => setSelectedMonthYear(e.target.value)}
+                className="mb-4 p-1 rounded-md"
+            >
+                <option value="" disabled>Selecciona un mes</option>
+                {months.map(({ month, year, formatted }) => (
+                    <option key={`${month}-${year}`} value={`${month}-${year}`}>
+                        {formatted}
+                    </option>
+                ))}
+            </select>
+
+            {loading ? (
+                <p>Loading...</p>
+            ) : error ? (
+                <p>Error: {error}</p>
+            ) : (
+                <>
             {deudas.length > 0 ? (
                 <table className="w-full border-collapse text-sm">
                 <thead>
@@ -93,14 +135,14 @@ const Deudas : React.FC = () => {
                         <th className="border border-gray-300 px-4 py-2">Fecha de Venta</th>
                         <th className="border border-gray-300 px-4 py-2">Monto</th>
                         <th className="border border-gray-300 px-4 py-2">Estado</th>
-                        <th className="w-[120px] text-center px-2 py-2 bg-white"></th>
+                        <th className="w-[120px] text-center px-2 py-2 bg-background"></th>
                     </tr>
                 </thead>
                 <tbody>
                     {deudas.map((deuda) => (
                         <tr key={deuda.id}>
-                            <td className="border border-gray-300 px-4">{deuda.cliente.name}</td>
-                            <td className="border border-gray-300 px-4">{new Date(deuda.venta.created_at).toLocaleDateString()}</td>
+                            <td className="border border-gray-300 px-4">{deuda.cliente ? deuda.cliente.name : ""}</td>
+                            <td className="border border-gray-300 px-4">{deuda?.venta?.created_at ? new Date(deuda.venta.created_at).toLocaleDateString() : ""}</td>
                             <td className="border border-gray-300 px-4">$ {deuda.amount}</td>
                             <td className="border border-gray-300 px-4">{deuda.status}</td>
                             <td className="px-2 flex justify-between items-center space-x-2 w-[120px]">
@@ -116,6 +158,8 @@ const Deudas : React.FC = () => {
                 </table>
             ) : (
                 <p>No hay deudas disponibles.</p>
+            )}
+            </>
             )}
             <ConfirmationModal
                 message="¿Estás seguro de que deseas eliminar esta deuda?"

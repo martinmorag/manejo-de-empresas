@@ -280,6 +280,12 @@ const EditVenta = () => {
     
         // Calculate the balance due
         const balanceDue = totalWithIva - clientPayment;
+
+        if (clientPayment < totalWithIva) {
+            setValidationErrors({ payment: "El pago debe ser menor o igual al total." })
+            console.log("something wrong")
+            return;
+        }
     
         // Determine the status based on payment and credit conditions
         const status = balanceDue <= 0
@@ -296,6 +302,7 @@ const EditVenta = () => {
             detalles_ventas: [
                 {
                     productoid: selectedProduct.id,
+                    productname: selectedProduct.name,
                     quantity,
                     price: selectedProductPrice,
                     iva_percentage: ivaPercentageNumber,

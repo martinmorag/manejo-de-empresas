@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import { prisma } from '@/app/lib/prisma';
 import { z } from 'zod';
+import { format } from 'date-fns'; 
+import { es } from 'date-fns/locale';
 
 // Updated schema with new fields for credit sales and debt amount
 const VentaSchema = z.object({
@@ -16,6 +18,7 @@ const VentaSchema = z.object({
   detalles_ventas: z.array(
     z.object({
       productoid: z.string().uuid("ID del producto debe ser un UUID"),
+      productname: z.string(),
       quantity: z.number().int().positive("La cantidad debe ser mayor a 0"),
       price: z.number().positive("El precio debe ser mayor a 0"),
       iva_percentage: z.number().min(0).max(100).optional(),
@@ -38,6 +41,7 @@ const UpdateVentaSchema = z.object({
     z.object({
       id: z.string().uuid("ID del detalle debe ser un UUID").optional(),
       productoid: z.string().uuid("ID del producto debe ser un UUID"),
+      productname: z.string(),
       quantity: z.number().int().positive("La cantidad debe ser mayor a 0"),
       price: z.number().positive("El precio debe ser mayor a 0"),
       iva_percentage: z.number().min(0).max(100).optional(),
@@ -95,6 +99,7 @@ export async function POST(req: NextRequest) {
         data: parsedBody.detalles_ventas.map(detail => ({
           ventaid: newVenta.id,
           productoid: detail.productoid,
+          productname: detail.productname,
           quantity: detail.quantity,
           price: detail.price,
           iva_percentage: detail.iva_percentage || 0, // Default value if not provided
@@ -157,14 +162,44 @@ export async function GET(req: NextRequest) {
 
         const negocioId = usuario.negocioid;
 
-        
         const { searchParams } = new URL(req.url);
         const yearParam = searchParams.get('year');
         const monthParam = searchParams.get('month');
 
-        const currentDate = new Date();
-        const year = yearParam ? parseInt(yearParam) : currentDate.getFullYear();
-        const month = monthParam ? parseInt(monthParam) : currentDate.getMonth() + 1;
+        if (!yearParam && !monthParam) {
+          // Fetch distinct months and years where ventas exist for the given negocioId
+          const monthsWithVentas = await prisma.ventas.groupBy({
+              by: ['created_at'],
+              where: { negocioid: negocioId },
+              _min: { created_at: true },
+          });
+
+          // Format the result to return unique months and years
+          const uniqueMonths = monthsWithVentas.map((venta) => {
+              if (venta._min.created_at) {
+                  const formattedMonthYear = format(venta._min.created_at, "MMMM yyyy", { locale: es }); // Using Spanish months
+                  return {
+                      formatted: formattedMonthYear, // e.g., "Mayo 2024"
+                      year: format(venta._min.created_at, 'yyyy'),
+                      month: format(venta._min.created_at, 'MM'),
+                  };
+              }
+              return {
+                  formatted: 'Unknown',
+                  year: 'Unknown',
+                  month: 'Unknown',
+              };
+          });
+
+          // Remove duplicates by creating a Set from the formatted month strings
+          const uniqueResults = Array.from(new Set(uniqueMonths.map(item => item.formatted)))
+              .map(formatted => uniqueMonths.find(item => item.formatted === formatted));
+
+          return NextResponse.json(uniqueResults);
+        }
+
+        const year = yearParam ? parseInt(yearParam) : new Date().getFullYear();
+        const month = monthParam ? parseInt(monthParam) : new Date().getMonth() + 1;
 
         // Fetch all ventas for the given negocioId
         const ventas = await prisma.ventas.findMany({
@@ -176,8 +211,13 @@ export async function GET(req: NextRequest) {
              },
             include: {
               detalles_ventas: {
-                  include: {
-                      producto: true, // Include the related product details
+                  select: {
+                    quantity: true,
+                    price: true,
+                    iva_percentage: true,
+                    discount: true,
+                    sale_date: true,
+                    productname: true, // Include productName
                   },
               },
           },
@@ -240,6 +280,7 @@ export async function PUT(req: NextRequest) {
                 where: { id: detail.id },
                 data: {
                   productoid: detail.productoid,
+                  productname: detail.productname,
                   quantity: detail.quantity,
                   price: detail.price,
                   iva_percentage: detail.iva_percentage || 0,
@@ -252,6 +293,7 @@ export async function PUT(req: NextRequest) {
                 data: {
                   ventaid: updatedVenta.id,
                   productoid: detail.productoid,
+                  productname: detail.productname,
                   quantity: detail.quantity,
                   price: detail.price,
                   iva_percentage: detail.iva_percentage || 0,

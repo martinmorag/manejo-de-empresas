@@ -47,6 +47,20 @@ export interface Producto {
   price: number | string;
 }
 
+export interface ProductCSV {
+  name: string;
+  description: string;
+  barcode: string;
+  price: number;
+}
+
+export interface CsvRow {
+  nombre: string;
+  descripcion: string;
+  "codigo de barras": string; // Using quotes to handle spaces in the key
+  precio: string; // Keep as string since CSV values are parsed as strings initially
+}
+
 export interface Negocio {
   id: string;
   name: string;
@@ -76,8 +90,8 @@ export interface Deuda {
   updated_at: string;
   cliente: {
     name: string;  // Adding client name
-  };
-  venta: {
+  } | null;
+  venta?  : {
     created_at: string;  // Adding venta date
   };
 }
@@ -107,7 +121,7 @@ export interface DetalleVenta {
   sale_date: string; 
   discount?: number;
   iva_percentage: number;
-  producto: Producto;
+  productname: string;
 }
 
 export interface UpdateVentaFormData {
@@ -144,6 +158,13 @@ export interface Venta {
     created_at: string;
     clienteid?: string;
     detalles_ventas: DetalleVenta[];
+    formatted: string;
+}
+
+export interface AvailableMonth {
+  formatted: string;
+  year: string;
+  month: string;
 }
 
 export interface VentaDetails {

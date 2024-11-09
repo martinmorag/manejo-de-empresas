@@ -8,6 +8,7 @@ import { DropDownProps } from "@/app/lib/definitions";
 const DropDown: React.FC<DropDownProps> = ({  session }) => {
   const [show, setShow] = useState(false);
   const [data, setData] = useState<ProfileData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
 
@@ -22,6 +23,8 @@ const DropDown: React.FC<DropDownProps> = ({  session }) => {
         setData(data);
       } catch (error: any) {
           console.log(error.message);
+      } finally {
+        setIsLoading(false);
       }
     };
   
@@ -56,13 +59,17 @@ const DropDown: React.FC<DropDownProps> = ({  session }) => {
         ref={buttonRef}
         onClick={handleDropdownClick}
         className={"flex items-center justify-center h-[100%] cursor-pointer w-[50px] h-[auto] mr-[0.2rem]"}
-      ><Image
-      src={data?.profile_image ? data.profile_image : `/${data?.default_picture}.png`}
-      alt="Foto de perfil"
-      width={42}
-      height={42}
-      className="rounded-full"
-      /></div>
+      >
+        {!isLoading && data ? (
+          <Image
+            src={data.profile_image ? data.profile_image : `/${data.default_picture}.png`}
+            alt=""
+            width={42}
+            height={42}
+            className="rounded-full"
+          />
+        ) : null}
+      </div>
       
 
       {show && (

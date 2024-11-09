@@ -71,6 +71,34 @@ const Productos : React.FC = () => {
         }
     };
 
+    /* Pagination */
+
+    const itemsPerPage = 5;
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const totalPages = Math.ceil(productos.length / itemsPerPage);
+
+    const getPaginatedData = () => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        return productos.slice(startIndex, startIndex + itemsPerPage);
+    };
+
+    const displayedItems = getPaginatedData();
+
+    const nextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(prevPage => prevPage + 1);
+        }
+    };
+
+    const previousPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(prevPage => prevPage - 1);
+        }
+    };
+    
+    /* Confirmation Modal, Toggle, Delete and Edit */
+
     const openConfirmationModal = (id: string) => {
         setSelectedProductId(id);
         setIsModalVisible(true);
@@ -99,11 +127,11 @@ const Productos : React.FC = () => {
                         <th className="border border-gray-300 px-4 py-2">Descripción</th>
                         <th className="border border-gray-300 px-4 py-2">Código de Barras</th>
                         <th className="border border-gray-300 px-4 py-2">Precio</th>
-                        <th className="w-[80px] text-center px-2 py-2 bg-white"></th>
+                        <th className="w-[80px] text-center px-2 py-2 bg-background"></th>
                     </tr>
                 </thead>
                 <tbody>
-                        {productos.map((producto) => (
+                        {displayedItems.map((producto) => (
                             <tr key={producto.id}>
                                 <td className="border border-gray-300 px-4 ">{producto.name}</td>
                                 <td className="border border-gray-300 px-4 ">{producto.description}</td>

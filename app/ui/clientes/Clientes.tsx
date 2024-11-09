@@ -99,7 +99,7 @@ const Clientes : React.FC = () => {
                         <th className="border border-gray-300 px-4 py-2">Email</th>
                         <th className="border border-gray-300 px-4 py-2">Teléfono</th>
                         <th className="border border-gray-300 px-4 py-2">Dirección</th>
-                        <th className="w-[80px] text-center px-2 py-2 bg-white"></th>
+                        <th className="w-[80px] text-center px-2 py-2 bg-background"></th>
                     </tr>
                 </thead>
                 <tbody>

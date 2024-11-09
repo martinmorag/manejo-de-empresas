@@ -2,57 +2,68 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { prisma } from '@/app/lib/prisma'; // Adjust the path to your Prisma instance
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions'; // Adjust the path to your NextAuth options
-import { Decimal } from '@prisma/client/runtime/library';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 export async function GET(req: NextRequest) {
-    try {
-        const session = await getServerSession(authOptions);
+  try {
+      const session = await getServerSession(authOptions);
+      if (!session) return NextResponse.json({ message: 'No autorizado' }, { status: 401 });
 
-        if (!session) {
-            return NextResponse.json({ message: 'No autorizado' }, { status: 401 });
-        }
+      const usuario = await prisma.usuarios.findUnique({
+          where: { id: session.user.id },
+          select: { negocioid: true },
+      });
+      if (!usuario?.negocioid) return NextResponse.json({ message: 'Usuario sin negocio' }, { status: 404 });
 
-        // Fetch the user's negocioid based on their email from the session
-        const usuario = await prisma.usuarios.findUnique({
-            where: { id: session.user?.id as string },
-            select: { negocioid: true },
-        });
+      const { searchParams } = new URL(req.url);
+      const month = searchParams.get("month");
+      const year = searchParams.get("year");
 
-        if (!usuario?.negocioid) {
-            return NextResponse.json({ message: 'Este usuario no tiene un negocio designado' }, { status: 404 });
-        }
+      if (!month || !year) {
+          const monthsWithVentas = await prisma.deudas.groupBy({
+              by: ['created_at'],
+              where: { venta: { negocioid: usuario.negocioid } },
+              _min: { created_at: true },
+          });
 
-        const negocioId = usuario.negocioid;
+          const uniqueMonths = monthsWithVentas.map(({ _min }) => ({
+              formatted: format(_min.created_at as Date, "MMMM yyyy", { locale: es }),
+              month: format(_min.created_at as Date, "MM"),
+              year: format(_min.created_at as Date, "yyyy"),
+          }));
 
-        // Fetch all deudas for the given negocioId, including cliente name and venta date
-        const deudas = await prisma.deudas.findMany({
-            where: {
-                venta: {
-                    negocioid: negocioId, // Ensure deudas are related to ventas with the same negocioid
-                },
-            },
-            include: {
-                venta: {
-                    select: {
-                        created_at: true, // Include the date of the venta
-                    },
-                },
-                cliente: {
-                    select: {
-                        name: true, // Include the client's name
-                    },
-                },
-            },
-        });
+          return NextResponse.json(Array.from(new Set(uniqueMonths.map(m => m.formatted))).map(f => 
+              uniqueMonths.find(m => m.formatted === f)));
+      }
 
-        return NextResponse.json(deudas);
-    } catch (error) {
-        console.error("Error fetching deudas:", error);
-        return NextResponse.json({ message: 'Error interno del servidor' }, { status: 500 });
-    }
+      const startDate = new Date(`${year}-${month}-01`);
+      const endDate = new Date(startDate); // Clone the date
+
+      endDate.setMonth(startDate.getMonth() + 1);
+
+      const deudas = await prisma.deudas.findMany({
+          where: {
+              venta: {
+                  negocioid: usuario.negocioid,
+                  created_at: {
+                    gte: startDate,
+                    lt: endDate,
+                  },
+              },
+          },
+          include: {
+              venta: { select: { created_at: true } },
+              cliente: { select: { name: true } },
+          },
+      });
+
+      return NextResponse.json(deudas);
+  } catch (error) {
+      console.error(error);
+      return NextResponse.json({ message: 'Error interno' }, { status: 500 });
+  }
 }
-
-
 
 export async function DELETE(req: NextRequest) {
   try {

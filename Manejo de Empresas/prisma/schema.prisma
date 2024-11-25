@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model usuarios {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String   @db.VarChar(100)
+  lastname   String?  @db.VarChar(100) 
+  email      String   @unique @db.VarChar(200)
+  password   String   @db.VarChar(200)
+  level      String   @db.VarChar(50)
+  profile_image Bytes?
+  default_picture String? @default("profile") @db.VarChar(50)
+  accesos_directos Json? @db.JsonB
+  negocioid  String?  @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz
+
+  // Define relationships
+  negocio         negocios? @relation(fields: [negocioid], references: [id], onUpdate: Cascade, onDelete: NoAction)
+  anuncios anuncios[]
+}
+
+model negocios {
+  id         String     @id @default(uuid()) @db.Uuid
+  name       String     @db.VarChar(200)
+  location   String?    @db.VarChar(200)
+  created_at  DateTime   @default(now()) @db.Timestamptz
+  iva_percentage Decimal? @db.Decimal(5, 2)
+
+  // Define inverse relation
+  usuarios   usuarios[]
+  productos  productos[]
+  ventas     ventas[]
+  clientes   clientes[]
+}
+
+model anuncios {
+  id          String   @id @default(uuid())
+  message     String
+  usuarioid   String
+  created_at   DateTime @default(now())
+  finished_at  DateTime?
+  estado      String
+
+  usuarios     usuarios? @relation(fields: [usuarioid], references: [id], onDelete: SetNull, onUpdate: Cascade)
+}
+
+model productos {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String    @db.VarChar(200)
+  description String?   @db.Text
+  barcode     String?   @unique @db.VarChar(100)
+  negocioid   String?   @db.Uuid
+  price       Decimal   @db.Decimal(10, 2)
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+
+  // Define the relationship with the negocios model
+  negocios    negocios? @relation(fields: [negocioid], references: [id], onUpdate: Cascade, onDelete: NoAction)
+  detalles_ventas detalles_ventas[]
+}
+
+model ventas {
+  id             String      @id @default(uuid())
+  negocioid      String
+  payment        Decimal     @db.Decimal(10, 2)
+  balance_due    Decimal?    @db.Decimal(10, 2)
+  status         String?     @db.VarChar(20)
+  payment_method String?     @db.VarChar(100)
+  total          Decimal     @db.Decimal(10, 2)
+  created_at     DateTime    @default(now()) @db.Timestamp(0)
+  clienteid       String?
+
+  // Relations
+  negocio        negocios     @relation(fields: [negocioid], references: [id], onUpdate: Cascade, onDelete: NoAction)
+  cliente        clientes?    @relation(fields: [clienteid], references: [id], onUpdate: Cascade, onDelete: SetNull)
+  detalles_ventas detalles_ventas[]
+  deuda           deudas[]
+
+  @@map("ventas")
+}
+
+model detalles_ventas {
+  id         String     @id @default(uuid())
+  ventaid    String
+  productoid String
+  productname String
+  quantity   Int
+  price      Decimal    @db.Decimal(10, 2)
+  iva_percentage Decimal? @db.Decimal(5, 2)
+  sale_date  DateTime   @default(now()) @db.Timestamptz
+  discount   Decimal?   @db.Decimal(5, 2)
+
+  // Relations
+  venta      ventas      @relation(fields: [ventaid], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  producto   productos   @relation(fields: [productoid], references: [id], onUpdate: Cascade, onDelete: NoAction)
+
+  @@map("detalles_ventas")
+}
+
+model clientes {
+  id          String     @id @default(uuid())
+  negocioid   String
+  name        String
+  email       String    @unique
+  phone        String?
+  address     String?
+  created_at  DateTime  @default(now()) @db.Timestamp(0)
+  updated_at  DateTime  @updatedAt @db.Timestamp(0) // Updated automatically
+
+  // Relations
+  negocio     negocios  @relation(fields: [negocioid], references: [id], onUpdate: Cascade, onDelete: NoAction)
+  venta       ventas[]  
+  deuda       deudas[]
+
+  @@map("clientes")
+}
+
+model deudas {
+  id         String   @id @default(uuid())
+  cliente_id   String
+  venta_id    String?
+  amount     Decimal  @db.Decimal(10, 2)
+  due_date    DateTime? // Optional field
+  status     String   // Example statuses: 'pending', 'paid', 'overdue'
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Relations
+  cliente     clientes  @relation(fields: [cliente_id], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  venta      ventas?  @relation(fields: [venta_id], references: [id], onUpdate: Cascade, onDelete: NoAction)
+
+  @@map("deudas") // Map Prisma model to the actual table name in the database
+}
+
+
+model usuarios_prueba {
+  id          Int     @id @default(autoincrement())
+  name        String
+  email       String @unique
+  password    String
+}

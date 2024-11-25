@@ -22,6 +22,7 @@ model usuarios {
 
   // Define relationships
   negocio         negocios? @relation(fields: [negocioid], references: [id], onUpdate: Cascade, onDelete: NoAction)
+  anuncios anuncios[]
 }
 
 model negocios {
@@ -36,6 +37,17 @@ model negocios {
   productos  productos[]
   ventas     ventas[]
   clientes   clientes[]
+}
+
+model anuncios {
+  id          String   @id @default(uuid())
+  message     String
+  usuarioid   String
+  created_at   DateTime @default(now())
+  finished_at  DateTime?
+  estado      String
+
+  usuarios     usuarios? @relation(fields: [usuarioid], references: [id], onDelete: SetNull, onUpdate: Cascade)
 }
 
 model productos {

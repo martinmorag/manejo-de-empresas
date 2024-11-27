@@ -267,6 +267,19 @@ const EditVenta = () => {
             }));
         }
     }, [clientPayment, totalWithIva, formData.is_on_credit]);
+
+    useEffect(() => {
+        const total = selectedProductPrice * quantity;
+        const iva = (total * ivaPercentage) / 100;
+        const totalWithIvaCalculated = parseFloat((total + iva).toFixed(2));
+        if (clientPayment > totalWithIvaCalculated) {
+            setClientPayment(totalWithIvaCalculated);
+        }
+        setFormData((prev) => ({
+            ...prev,
+            total: totalWithIvaCalculated,
+        }));
+    }, [quantity, selectedProductPrice, ivaPercentage]);
     
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();

@@ -80,7 +80,7 @@
 
         const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             const value = parseInt(e.target.value, 10);
-            setQuantity(value > 0 ? value : 1); // Ensure quantity is at least 1
+            setQuantity(value > 0 ? value : 1);
         };
 
         const handleSaleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,23 +112,25 @@
                     ...prev,
                     payment: value
                 }));
-        
+
                 if (value > 0 && value <= totalWithIva) {
                     setErrors(prevErrors => ({ ...prevErrors, payment: '' }));
                 } else if (value > totalWithIva) {
                     setErrors(prevErrors => ({ ...prevErrors, payment: 'El pago no puede ser mayor que el total.' }));
                 }
+            } else if (value > totalWithIva) {
+                setClientPayment(value);
             } else {
                 setClientPayment(0);
                 setFormData(prev => ({
                     ...prev,
                     payment: 0
                 }));
-        
+
                 setErrors(prevErrors => ({ ...prevErrors, payment: 'El pago del cliente debe ser un número mayor a 0' }));
             }
-        };    
-        
+        };
+
         const handleCreditToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
             const isOnCredit = e.target.checked;
             const calculatedDebt = isOnCredit ? totalWithIva - clientPayment : 0;
@@ -157,8 +159,6 @@
         const ivaAmount = (subtotal * ivaPercentage) / 100;
         const totalWithIva = parseFloat((subtotal + ivaAmount).toFixed(2));
 
-
-
         const handleSetFullPayment = () => {
             if (totalWithIva <= 0) return;
             setClientPayment(totalWithIva);
@@ -178,6 +178,19 @@
                 }));
             }
         }, [clientPayment, totalWithIva, formData.is_on_credit]);
+
+        useEffect(() => {
+            const total = selectedProductPrice * quantity;
+            const iva = (total * ivaPercentage) / 100;
+            const totalWithIvaCalculated = parseFloat((total + iva).toFixed(2));
+            if (clientPayment > totalWithIvaCalculated) {
+                setClientPayment(totalWithIvaCalculated);
+            }
+            setFormData((prev) => ({
+                ...prev,
+                total: totalWithIvaCalculated,
+            }));
+        }, [quantity, selectedProductPrice, ivaPercentage]);
         
         const handleSubmit = async (e: FormEvent) => {
             e.preventDefault();

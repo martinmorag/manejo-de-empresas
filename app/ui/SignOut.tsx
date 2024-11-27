@@ -15,8 +15,8 @@ const SignOutButton: React.FC = () => {
 
     return (
         <button onClick={handleSignOut} className='flex justify-around px-4 py-2 hover:bg-gray-100 w-[100%] rounded-b-md'>
-            <ArrowLeftStartOnRectangleIcon className="w-[24px] h-[24px]"/>
-            Cerrar Sesión
+            <ArrowLeftStartOnRectangleIcon className="w-[24px] h-[24px] mr-2"/>
+            <p>Cerrar Sesión</p>
         </button>
         
     );

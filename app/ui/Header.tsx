@@ -93,6 +93,7 @@ const Header : React.FC = () => {
                         </Link>
                         </div>
                 </div>
+                <Link href="/panel/soporte" className="ml-[2.5rem]">Soporte</Link>
                 {data?.level === "administrador" &&
                     <Link
                         href="/panel/anuncios"

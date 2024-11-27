@@ -11,7 +11,7 @@ const Footer : React.FC = () => {
                 <Link href="/panel/ventas">Ventas</Link>
                 <Link href="/panel/clientes">Clientes</Link>
                 <Link href="/panel/deudas">Deudas</Link>
-                <Link href="/panel/contacto">Contacta a Soporte</Link>
+                <Link href="/panel/soporte">Contacta a Soporte</Link>
             </div>
             <div>
                 <Image src="/logo.png" alt="Logo Image" width="90" height="50" layout="intrinsic"/>

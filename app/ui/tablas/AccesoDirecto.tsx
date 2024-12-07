@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { PlusIcon, MinusIcon, ArchiveBoxIcon, BanknotesIcon, UserIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { AccesosDirectos } from "@/app/lib/definitions";
+import { AccesosDirectosSkeleton } from "@/app/ui/skeletons";
 
 const accesosDirectosList = [
     {name: "lista_productos", title: "Lista de productos", href: "/panel/productos", icon: ArchiveBoxIcon},
@@ -101,7 +102,8 @@ const AccesoDirecto : React.FC = () => {
         }
     }; 
 
-    if (loading) return <p>Loading...</p>;
+    if (loading) return <AccesosDirectosSkeleton />;
+
     if (error) return <p>Error: {error}</p>;
 
     return (

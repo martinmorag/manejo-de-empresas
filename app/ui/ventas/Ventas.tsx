@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { PencilIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import ConfirmationModal from "@/app/ui/ConfirmDelete"; // Adjust import path as necessary
 import { Venta, AvailableMonth } from "@/app/lib/definitions";
+import { TablesVentasSkeleton } from "@/app/ui/skeletons";
 import * as XLSX from "xlsx";
 
 const Ventas: React.FC = () => {
@@ -172,7 +173,7 @@ const Ventas: React.FC = () => {
     };
 
     if (loading) {
-        return <p>Loading...</p>;
+        return <TablesVentasSkeleton />;
     }
 
     if (error) {

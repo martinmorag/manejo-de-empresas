@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Anuncios from "@/app/ui/anuncios/Anuncios";
+import { OverviewSkeleton } from "@/app/ui/skeletons";
 
 const Overview: React.FC = () => {
     const [salesData, setSalesData] = useState<{ userName: string, totalAmount: number; quantityOfSales: number, currentBalanceDue: number } | null>(null);
@@ -45,7 +46,8 @@ const Overview: React.FC = () => {
         }
     }, []);
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <OverviewSkeleton />;
+
     if (error) return <div>Error: {error}</div>;
 
     return (

@@ -165,7 +165,16 @@ const EditPersonal : React.FC = () => {
                             />
                         ) : (
                             <Image
-                                src={`/${formData.usuario_picture || usuario?.profile_image || usuario?.default_picture || 'default'}.png`}
+                                // src={`/${formData.usuario_picture || usuario?.profile_image || usuario?.default_picture || 'default'}.png`}
+                                src={
+                                    formData?.usuario_picture // First priority: `formData.usuario_picture`
+                                        ? `/${formData.usuario_picture}.png`
+                                        : usuario?.profile_image // Second priority: Base64 `profile_image`
+                                            ? usuario.profile_image
+                                            : usuario?.default_picture // Third priority: `default_picture`
+                                                ? `/${usuario.default_picture}.png`
+                                                : '/default.png' // Fallback: Default placeholder
+                                }
                                 alt="Mi foto de perfil"
                                 width={75}
                                 height={75}

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Deuda } from "@/app/lib/definitions";
+import TablesDeudasSkeleton from "@/app/ui/skeletons";
 import ConfirmationModal from "@/app/ui/ConfirmDelete";
 import {ChevronLeftIcon, ChevronRightIcon} from "@heroicons/react/24/outline";
 
@@ -128,7 +129,7 @@ const Deudas : React.FC = () => {
     };
 
     if (loading) {
-        return <p>Loading...</p>;
+        return <TablesDeudasSkeleton />;
     }
 
     if (error) {

@@ -5,6 +5,7 @@ import { Producto } from "@/app/lib/definitions";
 import {ChevronLeftIcon, ChevronRightIcon, PencilIcon, TrashIcon} from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import ConfirmationModal from "@/app/ui/ConfirmDelete";
+import { TablesPCSkeleton } from "@/app/ui/skeletons";
 
 const Productos : React.FC = () => {
     const [productos, setProductos] = useState<Producto[]>([]);
@@ -110,7 +111,7 @@ const Productos : React.FC = () => {
     };
 
     if (loading) {
-        return <p>Loading...</p>;
+        return <TablesPCSkeleton />;
     }
 
     if (error) {

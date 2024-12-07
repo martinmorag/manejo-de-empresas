@@ -43,7 +43,7 @@ const AnunciosInfo :  React.FC<AnunciosInfoProps> = ({ anuncios, onFinalizarAnun
                     </div>
                 </div>
                 ))
-                : "No se publicaron anuncios anteriormente"}
+                : <p className="mt-5">No se publicaron anuncios anteriormente</p>}
         </div>
     )
 }

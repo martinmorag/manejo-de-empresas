@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Usuario, Negocio } from "@/app/lib/definitions";
 import UploadProfile from "./UploadProfile";
+import { useRouter } from "next/navigation";
 
 const images = [
     { id: "first", name: "Primera", src: "profile" },
@@ -31,6 +32,7 @@ const EditPersonal : React.FC = () => {
     const [showEdit, setShowEdit] = useState(false);
     const [uploadedImage, setUploadedImage] = useState<string | null>(null);
     const [isLoaded, setIsLoaded] = useState(false);
+    const router = useRouter();
 
     const handleSelection = (id: string, src: string) => {
         setSelected(id);
@@ -41,22 +43,27 @@ const EditPersonal : React.FC = () => {
         }));
     };
 
+    console.log("Image source:", {
+        uploadedImage,
+        usuario_picture: formData.usuario_picture,
+        profile_image: usuario?.profile_image,
+        default_picture: usuario?.default_picture,
+    });
+
     const handleShowEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
 
         if (showEdit) {
-            // Reset the profile image to the user's current image when canceling
             setFormData((prev) => ({
                 ...prev,
                 usuario_picture: usuario?.profile_image || usuario?.default_picture || '',
-            }));
-            setUploadedImage(null); // Clear uploaded image
-            setSelected(null); // Clear selected image
+            }))
+            setUploadedImage(null);
+            setSelected(null);
         }
 
         setShowEdit((prevShowEdit) => !prevShowEdit);
     };
-
 
     const handleInputChange = (e : React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -74,7 +81,7 @@ const EditPersonal : React.FC = () => {
         }));
         setSelected(null); // Clear selection of default images
     };
-    console.log(formData)
+    // console.log(formData)
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
@@ -98,7 +105,6 @@ const EditPersonal : React.FC = () => {
             }
 
             const result = await response.json();
-            console.log("Perfil actualizado con éxito:", result);
             setShowEdit(false); // Hide edit form on success
         } catch (error) {
             console.error("Error al actualizar el perfil:", error);
@@ -148,6 +154,13 @@ const EditPersonal : React.FC = () => {
         fetchNegocio()
     }, [])
 
+    const resolvedImageSrc =
+        uploadedImage || // Uploaded image takes priority
+        (selected ? `/${formData.usuario_picture}.png` : null) || // Selected image
+        usuario?.profile_image || // User's actual profile image
+        (usuario?.default_picture ? `/${usuario.default_picture}.png` : null) || // Default profile picture
+        "/default.png";
+
     return (
         <form onSubmit={handleSubmit} className="flex w-[100%] h-[100%]">
             <div className="flex flex-col items-start w-[50%] h-[100%]">
@@ -167,14 +180,14 @@ const EditPersonal : React.FC = () => {
                             <Image
                                 // src={`/${formData.usuario_picture || usuario?.profile_image || usuario?.default_picture || 'default'}.png`}
                                 src={
-                                    formData?.usuario_picture // First priority: `formData.usuario_picture`
-                                        ? `/${formData.usuario_picture}.png`
-                                        : usuario?.profile_image // Second priority: Base64 `profile_image`
-                                            ? usuario.profile_image
-                                            : usuario?.default_picture // Third priority: `default_picture`
-                                                ? `/${usuario.default_picture}.png`
-                                                : '/default.png' // Fallback: Default placeholder
-                                }
+                                //    formData?.usuario_picture // First priority: `formData.usuario_picture`
+                                //        ? `/${formData.usuario_picture}.png`
+                                //        : usuario?.profile_image // Second priority: Base64 `profile_image`
+                                //            ? usuario.profile_image
+                                //            : usuario?.default_picture // Third priority: `default_picture`
+                                //                ? `/${usuario.default_picture}.png`
+                                //                : '/default.png' // Fallback: Default placeholder
+                                resolvedImageSrc || '/default.png'}
                                 alt="Mi foto de perfil"
                                 width={75}
                                 height={75}

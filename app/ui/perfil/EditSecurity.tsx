@@ -14,12 +14,29 @@ const EditSecurity : React.FC = () => {
     const [isSuccess, setIsSuccess] = useState<boolean | null>(null); // State to track success or error
     const [showEdit, setShowEdit] = useState(false);
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string } | null>(null); // New state for validation errors
+    const [passwordValidations, setPasswordValidations] = useState({
+        hasNumber: false,
+        hasSpecialChar: false,
+        hasMinLength: false,
+        hasUpperLower: false,
+    });
     const router = useRouter();
 
     const handleShowEdit = (e : React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         setShowEdit(prevShowEdit => !prevShowEdit);
     };
+
+    /* Strong password check */
+    useEffect(() => {
+        const validations = {
+            hasNumber: /\d/.test(newPassword),
+            hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(newPassword),
+            hasMinLength: newPassword.length >= 12,
+            hasUpperLower: /[a-z]/.test(newPassword) && /[A-Z]/.test(newPassword),
+        };
+        setPasswordValidations(validations);
+    }, [newPassword]);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -158,16 +175,24 @@ const EditSecurity : React.FC = () => {
                     onChange={(e) => setNewPassword(e.target.value)}
                     className="border p-2 rounded-md"
                 />
-                {validationErrors?.new_password && <p className="text-red-500">{validationErrors.new_password}</p>}
-                <label className="mt-2 text-gray-500">Confirmar contraseña</label>
-                <input
-                    name="confirm_new_password"
-                    type="password"
-                    value={confirmNewPassword}
-                    onChange={(e) => setConfirmNewPassword(e.target.value)}
-                    className="border p-2 rounded-md"
-                />
-                {validationErrors?.confirmNewPassword && <p className="text-red-500">{validationErrors.confirmNewPassword}</p>}
+                    <div className="p-3 m-2 ml-0 bg-gray-100 rounded-lg">
+                        <p>La contraseña debe tener:</p>
+                        <li className={passwordValidations.hasNumber ? "text-green-500" : "text-gray-500"}>Un número</li>
+                        <li className={passwordValidations.hasSpecialChar ? "text-green-500" : "text-gray-500"}>Un caracter especial</li>
+                        <li className={passwordValidations.hasMinLength ? "text-green-500" : "text-gray-500"}>Al menos 12 caracteres</li>
+                        <li className={passwordValidations.hasUpperLower ? "text-green-500" : "text-gray-500"}>Una letra mayúscula y una letra minúscula</li>
+                    </div>
+                    {validationErrors?.new_password && <p className="text-red-500">{validationErrors.new_password}</p>}
+                    <label className="mt-2 text-gray-500">Confirmar contraseña</label>
+                    <input
+                        name="confirm_new_password"
+                        type="password"
+                        value={confirmNewPassword}
+                        onChange={(e) => setConfirmNewPassword(e.target.value)}
+                        className="border p-2 rounded-md"
+                    />
+                    {validationErrors?.confirmNewPassword &&
+                        <p className="text-red-500">{validationErrors.confirmNewPassword}</p>}
                 <label className="text-gray-500 mt-9">Confirmar contraseña actual</label>
                 <input
                     name="current_password"

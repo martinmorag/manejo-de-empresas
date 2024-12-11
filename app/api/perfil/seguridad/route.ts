@@ -8,9 +8,28 @@ import bcrypt from 'bcrypt';
 // Schema to validate the request body
 const updateCredentialsSchema = z.object({
   new_email: z.string().email("El email debe ser válido").optional(),
-  new_password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres").optional(),
+  new_password: z
+      .string()
+      .optional()
+      .refine((value) => {
+        if (!value) return true; // Allow skipping validation if `new_password` is not provided
+        const validations = {
+          hasNumber: /\d/.test(value),
+          hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(value),
+          hasMinLength: value.length >= 12,
+          hasUpperLower: /[a-z]/.test(value) && /[A-Z]/.test(value),
+        };
+        return (
+            validations.hasNumber &&
+            validations.hasSpecialChar &&
+            validations.hasMinLength &&
+            validations.hasUpperLower
+        );
+      }, "La contraseña debe tener al menos 12 caracteres, incluir números, caracteres especiales y letras mayúsculas/minúsculas."),
   old_password: z.string().min(8, "La contraseña actual es necesaria para la confirmación").optional(),
 });
+
+
 
 export async function PUT(req: NextRequest) {
   try {

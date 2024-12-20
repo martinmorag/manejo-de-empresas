@@ -1,15 +1,15 @@
-import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import { prisma } from '../../../lib/prisma'; // Adjust the path if needed
+import { prisma } from '@/app/lib/prisma'; // Adjust the path if needed
 import bcrypt from 'bcrypt';
 import type { NextAuthOptions } from 'next-auth';
 import type { User as NextAuthUser } from 'next-auth';
 import { JWT } from 'next-auth/jwt';
 import { z } from 'zod';
-import { NextRequest, NextResponse } from 'next/server';
+import dayjs from 'dayjs';
 
-
+const MAX_ATTEMPTS = 10;
+const LOCK_TIME_MINUTES = 15;
 
 interface CustomUser extends NextAuthUser {
   id: string;
@@ -47,28 +47,53 @@ export const authOptions: NextAuthOptions = {
         if (!parsedCredentials.success) {
           throw new Error('Formato de ingreso no válido');
         }
-      
+
+        const { email } = credentials;
+
         const user = await prisma.usuarios.findUnique({
           where: { email: credentials.email },
         });
 
-        const plainTextPassword = 'soyadministrador';  // This should be a securely entered password
-        const saltRounds = 10;  // Number of bcrypt salt rounds
-        const hashedPassword = await bcrypt.hash(plainTextPassword, saltRounds);
-        console.log("this is the pasword")
-        console.log(hashedPassword)
-
+        // const plainTextPassword = 'soyadministrador';  // This should be a securely entered password
+        // const saltRounds = 10;  // Number of bcrypt salt rounds
+        // const hashedPassword = await bcrypt.hash(plainTextPassword, saltRounds);
+        // console.log("this is the pasword")
+        // console.log(hashedPassword)
       
         if (!user) {
-          throw new Error('No se encontró usuario');
+          await logLoginAttempt(null ?? undefined, email, false, 'Usuario no encontrado');
+          throw new Error('No se encontró un usuario');
         }
+
+        // Check for lockout
+        const recentAttempts = await prisma.login_attempts.findMany({
+          where: {
+            usuarioid: user.id,
+            attemptedat: {
+              gte: dayjs().subtract(LOCK_TIME_MINUTES, 'minute').toDate(),
+            },
+          },
+        });
+
+        const failedAttempts = recentAttempts.filter((attempt) => !attempt.success);
+
+        if (failedAttempts.length >= MAX_ATTEMPTS) {
+          throw new Error(
+              `Su cuenta esta temporalmente bloqueada. Por favor intente de nuevo en ${LOCK_TIME_MINUTES} minutos.`
+          );
+        }
+
         const storedPasswordHash = user.password.trim();
       
         const isValidPassword = await bcrypt.compare(credentials.password, storedPasswordHash);
             
         if (!isValidPassword) {
+          await logLoginAttempt(user.id, email, false, 'Incorrect password');
           throw new Error('Contraseña inválida');
         }
+
+        await logLoginAttempt(user.id, email, true);
+
         return { 
           id: user.id.toString(), 
           name: user.name, 
@@ -98,3 +123,27 @@ export const authOptions: NextAuthOptions = {
     },
   },
 };
+
+
+
+// Helper function to log login attempts
+async function logLoginAttempt(
+    usuarioid: string | undefined,
+    email: string,
+    success: boolean,
+    reason?: string
+) {
+  if (!usuarioid) {
+    console.error("No valid usuarioid provided, cannot log login attempt.");
+    throw new Error("No se encontró un usuario");
+  }
+  await prisma.login_attempts.create({
+    data: {
+      usuarioid: usuarioid, // Provide a default value if undefined
+      success,
+      ipaddress: null, // Optionally include IP address
+      useragent: null, // Optionally include User-Agent
+      reason,
+    },
+  });
+}

@@ -22,7 +22,20 @@ model usuarios {
 
   // Define relationships
   negocio         negocios? @relation(fields: [negocioid], references: [id], onUpdate: Cascade, onDelete: NoAction)
-  anuncios anuncios[]
+  anuncios        anuncios[]
+  login_attempts  login_attempts[]
+}
+
+model login_attempts {
+  id          String    @id @default(uuid())
+  usuarioid   String
+  attemptedat DateTime  @default(now())
+  success     Boolean
+  ipaddress   String?
+  useragent   String?
+  reason      String?
+
+  usuarios    usuarios  @relation(fields: [usuarioid], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model negocios {

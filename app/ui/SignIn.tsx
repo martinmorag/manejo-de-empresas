@@ -37,7 +37,7 @@ const SignIn: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)} 
                 required
-                className="h-[2rem] rounded-md px-2"
+                className="border h-[2rem] rounded-md px-2"
             />
             <label className="pb-[0.5rem] pt-[1rem] text-[1.25rem]">Contraseña</label>
             <input 
@@ -45,7 +45,7 @@ const SignIn: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required 
-                className="h-[2rem] rounded-md px-2"
+                className="border h-[2rem] rounded-md px-2"
             />
             <button 
                 type="submit"

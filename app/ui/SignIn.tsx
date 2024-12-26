@@ -42,7 +42,7 @@ const SignIn: React.FC = () => {
             <label className="pb-[0.5rem] pt-[1rem] text-[1.25rem]">Contraseña</label>
             <input 
                 type="password"
-                value={password}
+                value={password.trim()}
                 onChange={(e) => setPassword(e.target.value)}
                 required 
                 className="border h-[2rem] rounded-md px-2"

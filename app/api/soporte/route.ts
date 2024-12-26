@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
         const mailOptions = {
             from: `${usuario.name} <${process.env.EMAIL_ADDRESS}>`,
-            to: 'recipient_email@example.com',
+            to: `<${process.env.EMAIL_ADDRESS}>`,
             subject: parsedData.subject,
             text: `
         Name: ${parsedData.name} ${parsedData.lastname}

@@ -4,21 +4,16 @@ import { prisma } from '@/app/lib/prisma'; // Adjust the path if needed
 import bcrypt from 'bcrypt';
 import type { NextAuthOptions } from 'next-auth';
 import type { User as NextAuthUser } from 'next-auth';
-import { JWT } from 'next-auth/jwt';
+import { sendBlockWarning } from '@/app/lib/utils';
 import { z } from 'zod';
 import dayjs from 'dayjs';
 
-const MAX_ATTEMPTS = 10;
-const LOCK_TIME_MINUTES = 15;
+const MAX_ATTEMPTS = 2;
+const LOCK_TIME_MINUTES = 1;
 
 interface CustomUser extends NextAuthUser {
   id: string;
 }
-
-interface CustomToken extends JWT {
-  id?: string;
-}
-
 
 const CredentialsSchema = z.object({
   email: z.string().email(),
@@ -51,7 +46,7 @@ export const authOptions: NextAuthOptions = {
         const { email } = credentials;
 
         const user = await prisma.usuarios.findUnique({
-          where: { email: credentials.email },
+          where: { email },
         });
 
         // const plainTextPassword = 'soyadministrador';  // This should be a securely entered password
@@ -78,6 +73,8 @@ export const authOptions: NextAuthOptions = {
         const failedAttempts = recentAttempts.filter((attempt) => !attempt.success);
 
         if (failedAttempts.length >= MAX_ATTEMPTS) {
+          await sendBlockWarning(email);
+
           throw new Error(
               `Su cuenta esta temporalmente bloqueada. Por favor intente de nuevo en ${LOCK_TIME_MINUTES} minutos.`
           );
@@ -91,8 +88,6 @@ export const authOptions: NextAuthOptions = {
           await logLoginAttempt(user.id, email, false, 'Incorrect password');
           throw new Error('Contraseña inválida');
         }
-
-        await logLoginAttempt(user.id, email, true);
 
         return { 
           id: user.id.toString(), 

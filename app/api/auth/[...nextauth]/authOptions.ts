@@ -3,12 +3,14 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { prisma } from '@/app/lib/prisma'; // Adjust the path if needed
 import bcrypt from 'bcrypt';
 import type { NextAuthOptions } from 'next-auth';
+import type { RequestInternal } from 'next-auth';
+import { NextApiRequest } from "next";
 import type { User as NextAuthUser } from 'next-auth';
 import { sendBlockWarning } from '@/app/lib/utils';
 import { z } from 'zod';
 import dayjs from 'dayjs';
 
-const MAX_ATTEMPTS = 2;
+const MAX_ATTEMPTS = 15;
 const LOCK_TIME_MINUTES = 1;
 
 interface CustomUser extends NextAuthUser {
@@ -17,8 +19,41 @@ interface CustomUser extends NextAuthUser {
 
 const CredentialsSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(6), // Adjust the minimum length as needed
+  password: z.string().min(6),
 });
+
+
+
+
+function getClientIp(req: NextApiRequest): string | null {
+  // Check various headers that might contain the IP
+  const forwardedFor = req.headers['x-forwarded-for'] as string | string[] | undefined;
+  const realIp = req.headers['x-real-ip'] as string | undefined;
+  const cfConnectingIp = req.headers['cf-connecting-ip'] as string | undefined;
+
+  // Ensure forwardedFor is a string, if it's an array, take the first item
+  let forwardedForIp: string | null = null;
+
+  if (Array.isArray(forwardedFor)) {
+    forwardedForIp = forwardedFor[0];  // Take the first IP from the array
+  } else if (typeof forwardedFor === 'string') {
+    forwardedForIp = forwardedFor.split(',')[0].trim();  // If it's a string, split and take the first IP
+  }
+
+  // Try different headers in order of reliability, ensuring they're all treated as strings
+  const ip = forwardedForIp ||
+      (typeof realIp === 'string' ? realIp : null) ||
+      (typeof cfConnectingIp === 'string' ? cfConnectingIp : null) ||
+      req.socket?.remoteAddress ||
+      null;
+
+  return ip;
+}
+
+
+
+
+
 
 
 export const authOptions: NextAuthOptions = {
@@ -30,9 +65,9 @@ export const authOptions: NextAuthOptions = {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials) {
-        console.log('Credentials:', credentials);
-      
+      async authorize(credentials,
+                      req: Pick<RequestInternal, "body" | "method" | "query" | "headers">) {
+
         if (!credentials) {
           throw new Error('No se ingresaron credenciales');
         }
@@ -56,7 +91,7 @@ export const authOptions: NextAuthOptions = {
         // console.log(hashedPassword)
       
         if (!user) {
-          await logLoginAttempt(null ?? undefined, email, false, 'Usuario no encontrado');
+          await logLoginAttempt(null ?? undefined, email, false, 'Usuario no encontrado', req as NextApiRequest);
           throw new Error('No se encontró un usuario');
         }
 
@@ -85,7 +120,7 @@ export const authOptions: NextAuthOptions = {
         const isValidPassword = await bcrypt.compare(credentials.password, storedPasswordHash);
             
         if (!isValidPassword) {
-          await logLoginAttempt(user.id, email, false, 'Incorrect password');
+          await logLoginAttempt(user.id, email, false, 'Incorrect password', req as NextApiRequest);
           throw new Error('Contraseña inválida');
         }
 
@@ -126,18 +161,25 @@ async function logLoginAttempt(
     usuarioid: string | undefined,
     email: string,
     success: boolean,
-    reason?: string
+    reason?: string,
+    req?: NextApiRequest
 ) {
   if (!usuarioid) {
     console.error("No valid usuarioid provided, cannot log login attempt.");
     throw new Error("No se encontró un usuario");
   }
+
+  if (!req) {
+    throw new Error('Request is required for logging login attempt.');
+  }
+
+  const ipaddress = getClientIp(req);
+
   await prisma.login_attempts.create({
     data: {
       usuarioid: usuarioid, // Provide a default value if undefined
       success,
-      ipaddress: null, // Optionally include IP address
-      useragent: null, // Optionally include User-Agent
+      ipaddress: ipaddress, // Optionally include IP address
       reason,
     },
   });

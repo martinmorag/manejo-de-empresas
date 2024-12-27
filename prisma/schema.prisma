@@ -32,7 +32,6 @@ model login_attempts {
   attemptedat DateTime  @default(now())
   success     Boolean
   ipaddress   String?
-  useragent   String?
   reason      String?
 
   usuarios    usuarios  @relation(fields: [usuarioid], references: [id], onDelete: Cascade, onUpdate: Cascade)

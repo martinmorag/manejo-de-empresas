@@ -70,6 +70,19 @@ export function TablesVentasSkeleton() {
     )
 }
 
+export function TablesClientesSkeleton() {
+    return (
+        <>
+            <div
+                className={`${shimmer} relative overflow-hidden rounded-xl bg-gray-200 mt-5 p-2 shadow-sm h-[2rem] w-full`}>
+            </div>
+            <div
+                className={`${shimmer} relative overflow-hidden rounded-xl bg-gray-200 mt-5 p-2 shadow-sm h-[50vh] w-full`}>
+            </div>
+        </>
+    )
+}
+
 export default function TablesDeudasSkeleton() {
     return (
         <>

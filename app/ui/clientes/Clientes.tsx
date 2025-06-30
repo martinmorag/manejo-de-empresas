@@ -5,6 +5,7 @@ import { Cliente } from "@/app/lib/definitions";
 import {ChevronLeftIcon, ChevronRightIcon, PencilIcon, TrashIcon} from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import ConfirmationModal from "@/app/ui/ConfirmDelete";
+import { TablesClientesSkeleton } from "../skeletons";
 
 const Clientes : React.FC = () => {
     const [clientes, setClientes] = useState<Cliente[]>([]);
@@ -110,7 +111,7 @@ const Clientes : React.FC = () => {
     };
 
     if (loading) {
-        return <p>Loading...</p>;
+        return <TablesClientesSkeleton />;
     }
 
     if (error) {

@@ -87,23 +87,23 @@ const EditClient: React.FC = () => {
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col w-[90%] text-xl">
-            <label className="mb-2">Nombre</label>
-            <input type="text" name="name" value={formData.name} onChange={handleChange} required className="h-[2.2rem] pl-2 rounded-md border-2 border-solid border-main" />
+            <label className="text-gray-700 font-medium pr-3 mb-1 mt-4">Nombre</label>
+            <input type="text" name="name" value={formData.name} onChange={handleChange} required className="h-10 px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
             {validationErrors?.name && <p className="text-red-600">{validationErrors.name}</p>}
 
-            <label className="mb-2 mt-4">Email</label>
-            <input type="email" name="email" value={formData.email} onChange={handleChange} required className="h-[2.2rem] pl-2 rounded-md border-2 border-solid border-main" />
+            <label className="text-gray-700 font-medium pr-3 mb-1 mt-4">Email</label>
+            <input type="email" name="email" value={formData.email} onChange={handleChange} required className="h-10 px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
             {validationErrors?.email && <p className="text-red-600">{validationErrors.email}</p>}
 
-            <label className="mb-2 mt-4">Teléfono</label>
-            <input type="text" name="phone" value={formData.phone || ""} onChange={handleChange} className="h-[2.2rem] pl-2 rounded-md border-2 border-solid border-main" />
+            <label className="text-gray-700 font-medium pr-3 mb-1 mt-4">Teléfono</label>
+            <input type="text" name="phone" value={formData.phone || ""} onChange={handleChange} className="h-10 px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
             {validationErrors?.phone && <p className="text-red-600">{validationErrors.phone}</p>}
 
-            <label className="mb-2 mt-4">Dirección</label>
-            <input type="text" name="address" value={formData.address || ""} onChange={handleChange} className="h-[2.2rem] pl-2 rounded-md border-2 border-solid border-main" />
+            <label className="text-gray-700 font-medium pr-3 mb-1 mt-4">Dirección</label>
+            <input type="text" name="address" value={formData.address || ""} onChange={handleChange} className="h-10 px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
             {validationErrors?.address && <p className="text-red-600">{validationErrors.address}</p>}
 
-            <button type="submit" className="mt-[3.5rem] mb-5 w-[200px] h-[45px] ml-auto bg-white rounded-lg text-xl border-[3px] border-main border-solid">Actualizar Cliente</button>
+            <button type="submit" className="mt-14 mb-5 w-48 h-12 ml-auto bg-white text-blue-600 border-2 border-blue-600 font-semibold rounded-lg shadow-sm hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition-all duration-200 ease-in-out">Actualizar Cliente</button>
 
             {message && <p className="text-green-600">{message}</p>}
             {error && <p className="text-red-600">{error}</p>}

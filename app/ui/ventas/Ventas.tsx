@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PencilIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
-import ConfirmationModal from "@/app/ui/ConfirmDelete"; // Adjust import path as necessary
+import ConfirmationModal from "@/app/ui/ConfirmDelete"; 
 import { Venta, AvailableMonth } from "@/app/lib/definitions";
 import { TablesVentasSkeleton } from "@/app/ui/skeletons";
 import * as XLSX from "xlsx";
@@ -18,6 +18,7 @@ const Ventas: React.FC = () => {
     const [availableMonths, setAvailableMonths] = useState<AvailableMonth[]>([]);
     const [selectedMonthYear, setSelectedMonthYear] = useState<string>("");;
     const router = useRouter();
+    
 
     useEffect(() => {
         const fetchAvailableMonths = async () => {
@@ -31,9 +32,12 @@ const Ventas: React.FC = () => {
                 if (data.length > 0) {
                     setSelectedMonthYear(`${data[data.length - 1].month} ${data[data.length - 1].year}`);
                     console.log("selected month year actual: ", `${data[data.length - 1].month} ${data[data.length - 1].year}`)
+                } else {
+                    setLoading(false);
                 }
             } catch (error) {
                 setError("Error al cargar los meses disponibles.");
+                setLoading(false);
             }
         };
 
@@ -45,28 +49,29 @@ const Ventas: React.FC = () => {
     console.log("Month:", month, "Year:", year);
 
     useEffect(() => {
-        if (selectedMonthYear) {
-            const [month, year] = selectedMonthYear.split(" "); 
-            console.log("Month:", month, "Year:", year);
+        if(!selectedMonthYear) return;
 
-            const fetchVentas = async () => {
-                setLoading(true);
-                try {
-                    const response = await fetch(`/api/venta?year=${year}&month=${month}`);
-                    if (!response.ok) throw new Error("Error obteniendo las ventas.");
-                    
-                    const data: Venta[] = await response.json();
-                    setVentas(data);
-                } catch (error) {
-                    setError("Error al cargar las ventas.");
-                } finally {
-                    setLoading(false);
-                }
-            };
+        const [month, year] = selectedMonthYear.split(" "); 
+        //console.log("Month:", month, "Year:", year);
 
-            fetchVentas();
-        }
+        const fetchVentas = async () => {
+            try {
+                const response = await fetch(`/api/venta?year=${year}&month=${month}`);
+                if (!response.ok) throw new Error("Error obteniendo las ventas.");
+                
+                const data: Venta[] = await response.json();
+                setVentas(data);
+            } catch (error) {
+                setError("Error al cargar las ventas.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchVentas();
     }, [selectedMonthYear]);
+
+    console.log("Render Ventas. loading:", loading);
 
     const handleMonthYearChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedMonthYear(event.target.value);

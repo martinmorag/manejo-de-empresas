@@ -28,6 +28,8 @@ const Deudas : React.FC = () => {
                     const lastMonth = data[data.length - 1].month; // Assuming the last entry is the latest month
                     const lastYear = data[data.length - 1].year;
                     setSelectedMonthYear(`${lastMonth}-${lastYear}`);
+                } else {
+                setLoading(false); 
                 }
             } catch (error) {
                 setError("Error fetching months.");
@@ -42,7 +44,6 @@ const Deudas : React.FC = () => {
         const [month, year] = selectedMonthYear.split("-");
         const fetchDeudas = async () => {
             try {
-                setLoading(true);
                 const response = await fetch(`/api/deuda?month=${month}&year=${year}`);
                 if (!response.ok) {
                     const errorMessage = await response.text();
@@ -151,12 +152,6 @@ const Deudas : React.FC = () => {
                 ))}
             </select>
 
-            {loading ? (
-                <p>Loading...</p>
-            ) : error ? (
-                <p>Error: {error}</p>
-            ) : (
-                <>
             {deudas.length > 0 ? (
                 <table className="w-full border-collapse text-sm">
                 <thead>
@@ -189,8 +184,8 @@ const Deudas : React.FC = () => {
             ) : (
                 <p>No hay deudas disponibles.</p>
             )}
-            </>
-            )}
+
+            
             {totalPages > 1 && (
                 <div className="flex justify-center my-5">
                     <button onClick={previousPage}>
